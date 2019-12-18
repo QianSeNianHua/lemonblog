@@ -1,0 +1,9 @@
+{
+  "extends": ["tslint-config-egg"],
+  "rules": {
+    "no-use-before-declare": false,
+    "trailing-comma": true,
+    "indent": [true, "spaces", 2],
+    "prefer-const": false
+  }
+}

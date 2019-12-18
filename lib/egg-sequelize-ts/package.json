@@ -1,0 +1,90 @@
+{
+  "_from": "egg-sequelize-ts",
+  "_id": "egg-sequelize-ts@0.2.3-0",
+  "_inBundle": false,
+  "_integrity": "sha512-4khrhUQ+W2RyDfTylit5ctUn5buFitNBzwanxLH/PkmyBXgjIScptTd6ybKW4+3GihcZWmbP7auBcmjo/nbKMw==",
+  "_location": "/egg-sequelize-ts",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "egg-sequelize-ts",
+    "name": "egg-sequelize-ts",
+    "escapedName": "egg-sequelize-ts",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/egg-sequelize-ts/-/egg-sequelize-ts-0.2.3-0.tgz",
+  "_shasum": "2b2df5b0a20112ddac7ac09badc55536c29a54aa",
+  "_spec": "egg-sequelize-ts",
+  "_where": "F:\\wamp64\\www\\egg",
+  "author": {
+    "name": "jtyjty99999, stone-lyl, ZeekoZhu"
+  },
+  "bugs": {
+    "url": "https://github.com/stone-lyl/egg-sequelize-ts/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "mz-modules": "^2.1.0",
+    "reflect-metadata": "^0.1.13",
+    "sequelize": "^5.21.2",
+    "sequelize-typescript": "^1.1.0",
+    "typescript": "^3.1.6"
+  },
+  "deprecated": false,
+  "description": "egg Sequelize typescript plugin",
+  "devDependencies": {
+    "@types/sequelize": "^4.28.8",
+    "autod": "^3.0.1",
+    "egg": "^2.10.0",
+    "egg-bin": "^4.8.1",
+    "egg-mock": "^3.19.3",
+    "eslint": "^5.3.0",
+    "eslint-config-egg": "^7.0.0",
+    "mysql2": "^1.6.1"
+  },
+  "eggPlugin": {
+    "name": "sequelize"
+  },
+  "engines": {
+    "node": ">=6.0.0"
+  },
+  "files": [
+    "app",
+    "config",
+    "agent.js",
+    "lib",
+    "app.js",
+    "index.d.ts"
+  ],
+  "homepage": "https://github.com/stone-lyl/egg-sequelize-ts/blob/master/README.md",
+  "keywords": [
+    "egg",
+    "sequelize",
+    "egg-plugin",
+    "eggPlugin",
+    "orm",
+    "typescript"
+  ],
+  "license": "MIT",
+  "name": "egg-sequelize-ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stone-lyl/egg-sequelize-ts.git"
+  },
+  "scripts": {
+    "autod": "autod",
+    "ci": "npm run lint && npm run cov",
+    "cov": "egg-bin cov",
+    "lint": "eslint .",
+    "test": "npm run lint -- --fix && npm run test-local",
+    "test-local": "egg-bin test"
+  },
+  "version": "0.2.3-0"
+}
