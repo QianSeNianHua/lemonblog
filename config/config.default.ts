@@ -34,7 +34,7 @@ export default (appInfo: EggAppInfo) => {
 
   // mariadb
   config.sequelize = {
-    dialect: 'mysql',
+    dialect: 'mariadb',
     database: 'lemonblog',
     define: {
       timestamps: false,  // 时间戳，会给表名加上s
