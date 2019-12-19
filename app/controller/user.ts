@@ -65,4 +65,8 @@ export default class User extends Controller {
 
     ctx.body = '密码找回';
   }
+
+  /**
+   * 测试
+   */
 }
