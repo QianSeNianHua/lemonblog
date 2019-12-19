@@ -8,6 +8,9 @@ import * as JWT from 'jsonwebtoken';
 import * as fs from 'fs';
 import * as path from 'path';
 
+/**
+ * Token
+ */
 export default class Token {
   constructor () {
     this.privateKey = fs.readFileSync(path.join(__dirname, '../lib/key/privateKey.pem'));

@@ -1,12 +1,12 @@
 {
   "editor.codeActionsOnSave": {
-    "source.fixAll": true
+    "source.fixAll.tslint": true
   },
-  "files.eol": "\n",
   "editor.detectIndentation": false,
   "editor.tabSize": 2,
 
   "fileheader.Author": "xzt",
   "fileheader.LastModifiedBy": "xzt",
   "git.ignoreLimitWarning": true,
+  "files.eol": "\n",
 }

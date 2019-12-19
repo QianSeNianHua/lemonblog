@@ -34,6 +34,12 @@ export class ResponseWrapper {
     this._data = data;
   }
 
+  /**
+   * 静态调用
+   * @param code 状态码
+   * @param msg 消息
+   * @param data 数据
+   */
   static mark (code: CodeNum, msg: CodeMsg | string, data: object) {
     let responseWrapper = new ResponseWrapper();
     responseWrapper.code = code;
@@ -70,6 +76,9 @@ export enum CodeNum {
   UNKNOWN_IP = '1099',
   SYSTEM_ERROR = '9999'
 }
+/**
+ * 返回信息
+ */
 export enum CodeMsg {
   SUCCESS = '查询成功',
   NODATA = '查询成功无记录',
