@@ -1,5 +1,5 @@
 {
-  "name": "egg",
+  "name": "lemonblog_service",
   "version": "1.0.0",
   "description": "egg-init",
   "private": true,

@@ -1,3 +1,9 @@
+/*
+ * @Author: xzt
+ * @Date: 2019-12-19 11:53:13
+ * @Last Modified by: xzt
+ * @Last Modified time: 2019-12-19 11:53:51
+ */
 import { Controller } from 'egg';
 import { rd } from '../../lib/routerDecorate/index';
 
@@ -47,7 +53,7 @@ export default class User extends Controller {
   }
 
   /**
-   * 修改密码
+   * 重置密码
    */
   @rd.post('/resetpw')
   public async resetPassword () {
@@ -65,8 +71,4 @@ export default class User extends Controller {
 
     ctx.body = '密码找回';
   }
-
-  /**
-   * 测试
-   */
 }
