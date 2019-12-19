@@ -11,7 +11,7 @@
  Target Server Version : 100410
  File Encoding         : 65001
 
- Date: 18/12/2019 18:32:20
+ Date: 19/12/2019 18:42:06
 */
 
 SET NAMES utf8mb4;
@@ -83,13 +83,14 @@ CREATE TABLE `folder`  (
   `thumbnailURL` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '缩略图',
   PRIMARY KEY (`folderId`) USING BTREE,
   INDEX `userId`(`userId`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '文件夹' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '文件夹' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of folder
 -- ----------------------------
 INSERT INTO `folder` VALUES (1, 'aaa', '2019-12-08 17:59:20.000', 1, NULL);
 INSERT INTO `folder` VALUES (2, 'bbb', '2019-12-08 18:59:20.000', 1, NULL);
+INSERT INTO `folder` VALUES (3, 'xgxxr', '2019-12-19 15:08:14.662', 1, NULL);
 
 -- ----------------------------
 -- Table structure for opensource
@@ -151,9 +152,9 @@ CREATE TABLE `user`  (
 -- Records of user
 -- ----------------------------
 INSERT INTO `user` VALUES (1, '2019-12-08 17:59:20.000', '柠檬味的蓝海', NULL, NULL, '528627432', '18923960258', NULL, '93585f57-56fc-f968-9f07-4aaf740d6f89');
-INSERT INTO `user` VALUES (2, '2019-12-18 16:11:34.866', 'xzt', NULL, NULL, '123456789', '123456', NULL, '8ac11807-c86f-4caa-9623-3fcb89e9b26c');
+INSERT INTO `user` VALUES (2, '2019-12-18 16:11:34.866', 'xzt', NULL, NULL, '123456789', '123123', NULL, '8ac11807-c86f-4caa-9623-3fcb89e9b26c');
 INSERT INTO `user` VALUES (5, '2019-12-18 16:38:08.076', 'xzt', NULL, NULL, '1234567890', '123456', NULL, '3ed23eff-9289-4ddf-92d4-68468c6a990f');
-INSERT INTO `user` VALUES (6, '2019-12-18 16:38:37.054', 'xzt', NULL, NULL, '12345678901', '123456', NULL, 'f32ff2d3-8a69-4cc5-8da4-2779de71295a');
+INSERT INTO `user` VALUES (6, '2019-12-18 16:38:37.054', '1234', '', '', '12345678901', '123456', NULL, 'f32ff2d3-8a69-4cc5-8da4-2779de71295a');
 
 -- ----------------------------
 -- Function structure for countComment
@@ -182,6 +183,22 @@ BEGIN
 	DECLARE re INT;
 	SET re = (SELECT count(*) as count FROM file WHERE folderId = _folderId);
 	RETURN re;
+END
+;;
+delimiter ;
+
+-- ----------------------------
+-- Procedure structure for deleteFolder
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `deleteFolder`;
+delimiter ;;
+CREATE PROCEDURE `deleteFolder`(IN `_userId` int,IN `_folderId` int)
+BEGIN
+	DELETE fo, fi, co
+		from folder as fo
+		LEFT JOIN file as fi ON fo.folderId = fi.folderId
+		LEFT JOIN `comment` as co ON fi.fileId = co.fileId
+		WHERE fo.folderId = _folderId AND fo.userId = _userId;
 END
 ;;
 delimiter ;
