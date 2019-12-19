@@ -12,7 +12,7 @@ logs/
 !.autod.conf.js
 !tshelper.js
 typings/app/
-typings/config
+typings/config/
 
 app/**/*.js
 test/**/*.js
