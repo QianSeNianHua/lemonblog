@@ -8,11 +8,11 @@ export default (appInfo: EggAppInfo) => {
   // use for cookie sign key, should change to your own and keep security
   config.keys = appInfo.name + '_1574394479290_3779';
 
-  // add your egg config in here
-  config.middleware = [];
-  // config.uppercase = {
-  //   aaa: 'aaa'
-  // }
+  // 抛出错误，并返回格式化的错误信息
+  config.middleware = [ 'jsonError' ];
+  config.jsonError = {
+    postFormat: (_e, { stack, ...rest }) => appInfo.env === 'prod' ? { code: rest.status, msg: rest.message || '', data: {} } : { code: rest.status, msg: rest.message || '', stack: stack || '', data: {} }
+  };
 
   // 解析 application/json, text/plain
   config.bodyParser = {
@@ -43,12 +43,6 @@ export default (appInfo: EggAppInfo) => {
       freezeTableName: true,
     },
     timezone: '+08:00'
-  };
-
-  // 抛出错误，并返回格式化的错误信息
-  config.middleware = [ 'jsonError' ];
-  config.jsonError = {
-    postFormat: (_e, { stack, ...rest }) => appInfo.env === 'prod' ? { code: rest.status, msg: rest.message || '', data: {} } : { code: rest.status, msg: rest.message || '', stack: stack || '', data: {} }
   };
 
   // 接口报错

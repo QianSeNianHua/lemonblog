@@ -2,7 +2,7 @@
  * @Author: xzt
  * @Date: 2019-12-15 00:49:12
  * @Last Modified by: xzt
- * @Last Modified time: 2019-12-19 13:13:27
+ * @Last Modified time: 2019-12-19 14:59:45
  */
 import { Service, Context } from 'egg';
 import sequelize from 'sequelize';
@@ -102,6 +102,11 @@ export default class UserEnter extends Service {
    *
    */
   public async registered () {
+    // 检查参数
+    if (!this.data.password || !this.data.nickname) {
+      this.ctx.throw(500, `${CodeMsg.NO_PARAM}: account, password, nickname。`);
+    }
+
     let acc = await this.ctx.model.User.findOne({
       where: {
         account: this.data.account
@@ -123,12 +128,43 @@ export default class UserEnter extends Service {
   }
 
   /**
+   * 修改用户信息
+   * @param userUUID 用户唯一id
+   * @param nickname 用户昵称
+   * @param briefIntro 个性签名(可选)
+   * @param portraitURL 头像(可选)
+   */
+  public async modifyUserInfo () {
+    // 检查参数
+    if (!this.data.nickname) {
+      this.ctx.throw(CodeNum.NO_PARAM, `${CodeMsg.NO_PARAM}: nickname。`);
+    }
+
+    let res = await this.ctx.model.User.update({
+      nickname: this.data.nickname || null,
+      briefIntro: this.data.briefIntro || null,
+      portraitURL: this.data.portraitURL || null
+    }, {
+      where: {
+        userUUID: this.data.userUUID
+      }
+    });
+
+    return ResponseWrapper.mark(CodeNum.SUCCESS, CodeMsg.SUCCESS, { }).toString();
+  }
+
+  /**
    * 重置密码
    * @param userUUID 用户唯一id
    * @param oldPassword 旧密码
    * @param newPassword 新密码
    */
   public async resetPassword () {
+    // 检查参数
+    if (!this.data.newPassword) {
+      this.ctx.throw(500, `${CodeMsg.NO_PARAM}: newPassword。`);
+    }
+
     let pw = await this.ctx.model.User.findOne({
       where: {
         userUUID: this.data.userUUID,
@@ -141,8 +177,8 @@ export default class UserEnter extends Service {
       return ResponseWrapper.mark(CodeNum.ERROR, '密码不正确', { }).toString();
     }
 
-    await this.ctx.model.User.update({
-      password: this.data.newPassord,
+    let t = await this.ctx.model.User.update({
+      password: this.data.newPassword
     }, {
       where: {
         userUUID: this.data.userUUID

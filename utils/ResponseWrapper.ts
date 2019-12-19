@@ -2,7 +2,7 @@
  * @Author: xzt
  * @Date: 2019-12-13 17:51:54
  * @Last Modified by: xzt
- * @Last Modified time: 2019-12-18 16:32:45
+ * @Last Modified time: 2019-12-19 14:36:58
  */
 
 /**
@@ -64,6 +64,7 @@ export enum CodeNum {
   SUCCESS = 0,
   WARN = 1,
   ERROR = 2,
+  NO_PARAM = 500,
   NODATA = '0003',
   FEAILED = '0004',
   ACCOUNT_ERROR = '1000',
@@ -83,6 +84,7 @@ export enum CodeMsg {
   SUCCESS = '查询成功',
   NODATA = '查询成功无记录',
   FEAILED = '查询失败',
+  NO_PARAM = '少了参数',
   ACCOUNT_ERROR = '账户不存在或被禁用',
   API_NOT_EXISTS = '请求的接口不存在',
   API_NOT_PER = '没有该接口的访问权限',

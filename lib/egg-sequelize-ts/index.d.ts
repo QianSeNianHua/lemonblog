@@ -5,7 +5,7 @@ import Sequelize from '@types/sequelize';
 declare module 'egg' {
   // extend app
   interface Application {
-    Sequelize: Sequelize.Sequelize;
+    sequelize: Sequelize.Sequelize;
     model: IModel;
   }
 

@@ -1,4 +1,10 @@
-import { AutoIncrement, Column, Model, PrimaryKey, Table, CreatedAt, UpdatedAt, DataType, Unique, AllowNull, ForeignKey, BelongsTo, HasOne, HasMany, BelongsToMany } from 'sequelize-typescript';
+/*
+ * @Author: xzt
+ * @Date: 2019-12-19 13:59:39
+ * @Last Modified by: xzt
+ * @Last Modified time: 2019-12-19 14:05:10
+ */
+import { AutoIncrement, Column, Model, PrimaryKey, Table, Validate, DataType, Default, Unique, AllowNull, ForeignKey, BelongsTo, HasOne, HasMany, BelongsToMany } from 'sequelize-typescript';
 import User from './user';
 import File from './file';
 
@@ -15,12 +21,20 @@ export default class Folder extends Model<Folder> {
   })
   folderId: number;
 
+  @Validate({
+    length (value: string) {
+      if (value.length > 30) {
+        throw new Error('folderName长度不能超过30');
+      }
+    }
+  })
   @Column({
     type: DataType.STRING(30),
     comment: '文件夹名称'
   })
   folderName: string;
 
+  @Default(new Date())
   @Column({
     type: DataType.DATE(6),
     comment: '创建时间'

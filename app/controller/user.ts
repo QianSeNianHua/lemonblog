@@ -2,13 +2,13 @@
  * @Author: xzt
  * @Date: 2019-12-19 11:53:13
  * @Last Modified by: xzt
- * @Last Modified time: 2019-12-19 11:53:51
+ * @Last Modified time: 2019-12-19 14:26:33
  */
 import { Controller } from 'egg';
 import { rd } from '../../lib/routerDecorate/index';
 
 /**
- * 用户
+ * 用户接口
  */
 @rd.prefix('/user')
 export default class User extends Controller {
@@ -50,6 +50,16 @@ export default class User extends Controller {
     const { ctx, service } = this;
 
     ctx.body = await service.userEnter.registered();
+  }
+
+  /**
+   * 修改用户信息
+   */
+  @rd.post('/modifyUserInfo')
+  public async modifyUserInfo () {
+    const { ctx, service } = this;
+
+    ctx.body = await service.userEnter.modifyUserInfo();
   }
 
   /**

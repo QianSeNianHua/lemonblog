@@ -2,7 +2,7 @@
  * @Author: xzt
  * @Date: 2019-12-15 00:49:25
  * @Last Modified by: xzt
- * @Last Modified time: 2019-12-16 17:56:16
+ * @Last Modified time: 2019-12-19 14:57:04
  */
 import * as JWT from 'jsonwebtoken';
 import * as fs from 'fs';
@@ -47,15 +47,15 @@ export default class Token {
    * @param token token
    */
   verifyToken (token: string) {
-    let result = JWT.verify(token, this.publicKey, {
+    let result: any = JWT.verify(token, this.publicKey, {
       algorithms: [ this.alg ]
-    }) as { exp, userUUID };
+    });
 
     let time = Date.now();
 
     if (time <= result.exp) {
       // 有效期
-      return { type: true, userUUID: result.userUUID };
+      return { ...result };
     } else {
       // 过期
       return { type: false };
