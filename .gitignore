@@ -8,7 +8,6 @@ logs/
 .DS_Store
 *.swp
 *.lock
-*.js
 !.autod.conf.js
 !tshelper.js
 typings/app/
