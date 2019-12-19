@@ -11,8 +11,8 @@ logs/
 *.js
 !.autod.conf.js
 !tshelper.js
-typings/
-!typings/index.d.ts
+typings/app/
+typings/config
 
 app/**/*.js
 test/**/*.js
