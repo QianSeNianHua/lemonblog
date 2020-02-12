@@ -24,6 +24,9 @@ export default class FolderShell extends Service {
    * @param page 页标
    */
   async getFolderList () {
+    const count = parseInt(this.data.count);
+    const page = parseInt(this.data.page);
+
     let res = await this.ctx.model.Folder.findAndCountAll({
       raw: true,
       attributes: {
@@ -43,8 +46,8 @@ export default class FolderShell extends Service {
       order: [
         [ 'createTime', 'DESC' ]
       ],
-      limit: this.data.count,
-      offset: (this.data.page - 1) * this.data.count
+      limit: count,
+      offset: (page - 1) * count
     });
 
     return ResponseWrapper.mark(CodeNum.SUCCESS, CodeMsg.SUCCESS, res || { }).toString();
