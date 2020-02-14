@@ -158,8 +158,8 @@ export default class FolderShell extends Service {
       order: [
         [ 'createTime', ...descin ]
       ],
-      limit: this.data.count,
-      offset: (this.data.page - 1) * this.data.count
+      limit: parseInt(this.data.count),
+      offset: (parseInt(this.data.page) - 1) * parseInt(this.data.count)
     });
 
     return res;
@@ -203,7 +203,7 @@ export default class FolderShell extends Service {
       ]
     });
 
-    if (res.contentURL) {
+    if (res && res.contentURL) {
       const content = this.readFile(res.contentURL);
 
       delete res.contentURL;
