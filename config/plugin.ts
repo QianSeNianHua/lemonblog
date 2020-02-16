@@ -7,9 +7,17 @@ const plugin: EggPlugin = {
   //   enable: true,
   //   package: 'egg-view-nunjucks',
   // },
+
+  // sql
   sequelize: {
     enable: true,
     path: path.resolve(__dirname, '../lib/egg-sequelize-ts')
+  },
+
+  // 跨域
+  cors: {
+    enable: true,
+    package: 'egg-cors'
   }
 };
 

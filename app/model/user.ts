@@ -1,8 +1,8 @@
 /*
  * @Author: xzt
  * @Date: 2019-12-19 13:59:45
- * @Last Modified by:   xzt
- * @Last Modified time: 2019-12-19 13:59:45
+ * @Last Modified by: xzt
+ * @Last Modified time: 2020-02-01 16:14:55
  */
 import { Model, AutoIncrement, Column, PrimaryKey, Table, Validate, CreatedAt, UpdatedAt, DataType, Unique, AllowNull, Default, HasMany } from 'sequelize-typescript';
 import { ModelAttributeColumnOptions, col } from 'sequelize/types';

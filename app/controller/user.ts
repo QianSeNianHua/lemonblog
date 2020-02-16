@@ -2,7 +2,7 @@
  * @Author: xzt
  * @Date: 2019-12-19 11:53:13
  * @Last Modified by: xzt
- * @Last Modified time: 2019-12-19 14:26:33
+ * @Last Modified time: 2020-02-01 16:15:21
  */
 import { Controller } from 'egg';
 import { rd } from '../../lib/routerDecorate/index';

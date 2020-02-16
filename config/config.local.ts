@@ -10,6 +10,12 @@ export default () => {
     },
   };
 
+  config.cors = {
+    origin: 'http://127.0.0.1:8080',
+    credentials: true,
+    allowMethods: 'GET,POST'
+  };
+
   // mariadb
   config.sequelize = {
     host: '127.0.0.1',
