@@ -8,13 +8,13 @@ const plugin: EggPlugin = {
   //   package: 'egg-view-nunjucks',
   // },
 
-  // sql
+  // 数据库
   sequelize: {
     enable: true,
     path: path.resolve(__dirname, '../lib/egg-sequelize-ts')
   },
 
-  // 跨域
+  // 跨域白名单
   cors: {
     enable: true,
     package: 'egg-cors'

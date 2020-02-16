@@ -45,6 +45,11 @@ export default (appInfo: EggAppInfo) => {
     timezone: '+08:00'
   };
 
+  // 跨域白名单
+  config.cors = {
+    origin: [ 'http://127.0.0.1:8081' ]
+  };
+
   // 接口报错
   // config.onerror = {
   //   errorPageUrl: '/public/404.html'
