@@ -1,5 +1,6 @@
 import { AutoIncrement, Column, Model, PrimaryKey, ForeignKey, Table, CreatedAt, UpdatedAt, DataType, Unique, AllowNull, BelongsTo } from 'sequelize-typescript';
 import File from './file';
+import User from './user';
 
 @Table({
   modelName: 'comment'
@@ -13,12 +14,6 @@ export default class Comment extends Model<Comment> {
     comment: '评论id'
   })
   commentId: number;
-
-  @Column({
-    type: DataType.INTEGER,
-    comment: '评论者的用户id'
-  })
-  userId: number;
 
   @Column({
     type: DataType.DATE(6),
@@ -69,6 +64,16 @@ export default class Comment extends Model<Comment> {
   })
   fileId: number;
 
+  @ForeignKey(() => User)
+  @Column({
+    type: DataType.INTEGER,
+    comment: '评论者的用户id'
+  })
+  userId: number;
+
   @BelongsTo(() => File, 'fileId')
   file: File;
+
+  @BelongsTo(() => User, 'userId')
+  user: User;
 }

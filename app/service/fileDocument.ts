@@ -2,7 +2,7 @@
  * @Author: xzt
  * @Date: 2019-12-16 09:49:26
  * @Last Modified by: xzt
- * @Last Modified time: 2019-12-18 09:32:09
+ * @Last Modified time: 2020-02-18 16:02:13
  */
 import { Service, Context } from 'egg';
 import sequelize from 'sequelize';
@@ -158,8 +158,8 @@ export default class FolderShell extends Service {
       order: [
         [ 'createTime', ...descin ]
       ],
-      limit: parseInt(this.data.count),
-      offset: (parseInt(this.data.page) - 1) * parseInt(this.data.count)
+      limit: this.data.count,
+      offset: (this.data.page - 1) * this.data.count
     });
 
     return res;
@@ -224,7 +224,7 @@ export default class FolderShell extends Service {
   }
 
   /**
-   * 获取评论
+   * 获取全部评论
    * @param fileUUID 文章唯一id
    * @param desc 时间排序。true：倒序，false：正序(可选，默认为true)
    * @param count 每页显示的数量
@@ -238,6 +238,20 @@ export default class FolderShell extends Service {
       desc = this.data.desc;
     }
     const descin = desc ? [ 'DESC' ] : [];
+
+    // 获取评论总数
+    let resCount = await this.ctx.model.File.findOne({
+      raw: true,
+      attributes: {
+        include: [
+          [ sequelize.fn('countComment', sequelize.col('fileId')) as any, 'countComment' ]
+        ],
+        exclude: [ 'fileId', 'fileUUID', 'title', 'createTime', 'visit', 'contentURL', 'folderId', 'userId' ]
+      },
+      where: {
+        fileUUID: this.data.fileUUID
+      }
+    });
 
     // 第一层评论
     let resFather = await this.ctx.model.Comment.findAndCountAll({
@@ -256,6 +270,10 @@ export default class FolderShell extends Service {
           },
           attributes: [ ]
         },
+        {
+          model: this.ctx.model.User,
+          attributes: [ 'nickname', 'portraitURL' ]
+        }
       ],
       order: [
         [ 'createTime', ...descin ]
@@ -287,6 +305,10 @@ export default class FolderShell extends Service {
           },
           attributes: [ ]
         },
+        {
+          model: this.ctx.model.User,
+          attributes: [ 'nickname', 'portraitURL' ]
+        }
       ],
       order: [
         [ 'createTime', ...descin ]
@@ -295,11 +317,11 @@ export default class FolderShell extends Service {
 
     const res = this.commentDataTrans(resFather.rows, resChild);
 
-    return ResponseWrapper.mark(CodeNum.SUCCESS, CodeMsg.SUCCESS, { count: resFather.count, rows: res }).toString();
+    return ResponseWrapper.mark(CodeNum.SUCCESS, CodeMsg.SUCCESS, { count: resCount.countComment, rows: res }).toString();
   }
 
   /**
-   * 获取评论
+   * 获取作者的评论
    * @param fileUUID 文章唯一id
    * @param desc 时间排序。true：倒序，false：正序(可选，默认为true)
    */
@@ -312,7 +334,7 @@ export default class FolderShell extends Service {
     }
     const descin = desc ? [ 'DESC' ] : [];
 
-    // 评论
+    // 第二层评论
     let resComm = await this.ctx.model.Comment.findAll({
       raw: true,
       attributes: {
@@ -331,6 +353,10 @@ export default class FolderShell extends Service {
           },
           attributes: [ ]
         },
+        {
+          model: this.ctx.model.User,
+          attributes: [ 'nickname', 'portraitURL' ]
+        }
       ],
       order: [
         [ 'createTime', ...descin ]
@@ -367,6 +393,10 @@ export default class FolderShell extends Service {
           },
           attributes: [ ]
         },
+        {
+          model: this.ctx.model.User,
+          attributes: [ 'nickname', 'portraitURL' ]
+        }
       ],
       order: [
         [ 'createTime', ...descin ]
@@ -375,7 +405,7 @@ export default class FolderShell extends Service {
 
     const res = this.commentDataTrans(resFather, resChild);
 
-    return ResponseWrapper.mark(CodeNum.SUCCESS, CodeMsg.SUCCESS, res).toString();
+    return ResponseWrapper.mark(CodeNum.SUCCESS, CodeMsg.SUCCESS, { count: resFather.length + resChild.length, rows: res }).toString();
   }
 
   /**
@@ -386,8 +416,17 @@ export default class FolderShell extends Service {
     resChild.map(item => {
       // 清除userId
       // userAll表示该评论为作者发表的，true表示是，false表示不是
-      item.userAll = (item.userId === -1) ? false : true;
+      if (item.userId === -1) {
+        item.userAll = false;
+      } else {
+        item.userAll = true;
+        item.nickname = item['user.nickname'];
+        item.portraitURL = item['user.portraitURL'];
+      }
+
       delete item.userId;
+      delete item['user.nickname'];
+      delete item['user.portraitURL'];
 
       return item;
     });
@@ -396,9 +435,18 @@ export default class FolderShell extends Service {
       const dataT: any[] = [];
 
       // 清除userId
-      // userAll表示该评论为作者发表的，true表示是，false表示不是\
-      father.userAll = (father.userId === -1) ? false : true;
+      // userAll表示该评论为作者发表的，true表示是，false表示不是
+      if (father.userId === -1) {
+        father.userAll = false;
+      } else {
+        father.userAll = true;
+        father.nickname = father['user.nickname'];
+        father.portraitURL = father['user.portraitURL'];
+      }
+
       delete father.userId;
+      delete father['user.nickname'];
+      delete father['user.portraitURL'];
 
       resChild.forEach(child => {
         if (father.commentId === child.fatherCommentId) {
@@ -410,6 +458,28 @@ export default class FolderShell extends Service {
     });
 
     return data;
+  }
+
+  /**
+   * 发布评论
+   * @param fileUUID 文章唯一id
+   * @param content 评论内容
+   * @param appointCommentId 回复的指定用户
+   * @param fatherCommentId 回复的第一层id
+   * @param level 层级
+   * @param nickname 昵称
+   */
+  async announceComment () {
+
+  }
+
+  /**
+   * 登录后
+   * 删除评论
+   * @param commentId 评论id
+   */
+  async deleteComment () {
+
   }
 }
 

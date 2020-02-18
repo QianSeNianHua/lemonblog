@@ -2,7 +2,7 @@
  * @Author: xzt
  * @Date: 2019-12-16 00:02:58
  * @Last Modified by: xzt
- * @Last Modified time: 2019-12-19 18:35:39
+ * @Last Modified time: 2020-02-18 14:12:19
  */
 import { Service, Context } from 'egg';
 import sequelize from 'sequelize';
@@ -24,9 +24,6 @@ export default class FolderShell extends Service {
    * @param page 页标
    */
   async getFolderList () {
-    const count = parseInt(this.data.count);
-    const page = parseInt(this.data.page);
-
     let res = await this.ctx.model.Folder.findAndCountAll({
       raw: true,
       attributes: {
@@ -46,8 +43,8 @@ export default class FolderShell extends Service {
       order: [
         [ 'createTime', 'DESC' ]
       ],
-      limit: count,
-      offset: (page - 1) * count
+      limit: this.data.count,
+      offset: (this.data.page - 1) * this.data.count
     });
 
     return ResponseWrapper.mark(CodeNum.SUCCESS, CodeMsg.SUCCESS, res || { }).toString();
