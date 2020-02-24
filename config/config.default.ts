@@ -45,6 +45,16 @@ export default (appInfo: EggAppInfo) => {
     timezone: '+08:00'
   };
 
+  // redis
+  config.redis = {
+    client: {
+      port: 6379,
+      host: '127.0.0.1',
+      password: '',
+      db: 0
+    }
+  };
+
   // 接口报错
   // config.onerror = {
   //   errorPageUrl: '/public/404.html'

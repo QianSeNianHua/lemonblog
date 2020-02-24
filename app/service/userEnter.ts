@@ -27,8 +27,9 @@ export default class UserEnter extends Service {
 
   /**
    * 经典登录
-   * @param account 账户
-   * @param password 密码
+   * @param {string} account 账户
+   * @param {string} password 密码
+   * @param {boolean} state 七天免登录
    */
   private async classicsLogin () {
     let res;

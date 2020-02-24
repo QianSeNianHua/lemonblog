@@ -24,6 +24,7 @@
   "dependencies": {
     "egg": "^2.6.1",
     "egg-cors": "^2.2.3",
+    "egg-redis": "^2.4.0",
     "egg-scripts": "^2.6.0",
     "jsonwebtoken": "^8.5.1",
     "koa-json-error": "^3.1.2",

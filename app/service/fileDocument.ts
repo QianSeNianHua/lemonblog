@@ -74,26 +74,26 @@ export default class FolderShell extends Service {
       let date = new Date(item.createTime);
 
       let ry = map.some((value, index) => {
-        if (value.year === date.getUTCFullYear()) {
+        if (value.year === date.getFullYear()) {
           node = map[index];
 
           return true;
         }
       });
       if (!ry) {
-        map.push({ year: date.getUTCFullYear(), rows: [ ] });
+        map.push({ year: date.getFullYear(), rows: [ ] });
         node = map[map.length - 1];
       }
 
       let rm = node.rows.some((value, index) => {
-        if (value.month === (date.getUTCMonth() + 1)) {
+        if (value.month === (date.getMonth() + 1)) {
           node = node.rows[index];
 
           return true;
         }
       });
       if (!rm) {
-        node.rows.push({ month: date.getUTCMonth() + 1, rows: [ ] });
+        node.rows.push({ month: date.getMonth() + 1, rows: [ ] });
         node = node.rows[node.rows.length - 1];
       }
 

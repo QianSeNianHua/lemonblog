@@ -18,6 +18,12 @@ const plugin: EggPlugin = {
   cors: {
     enable: true,
     package: 'egg-cors'
+  },
+
+  // redis
+  redis: {
+    enable: true,
+    package: 'egg-redis'
   }
 };
 

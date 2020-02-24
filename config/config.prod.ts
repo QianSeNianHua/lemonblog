@@ -10,6 +10,13 @@ export default () => {
     },
   };
 
+  // 跨域白名单
+  config.cors = {
+    origin: 'http://127.0.0.1:7002',
+    credentials: true,
+    allowMethods: 'GET,POST'
+  };
+
   // mariadb
   config.sequelize = {
     host: '127.0.0.1',

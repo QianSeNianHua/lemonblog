@@ -34,7 +34,7 @@ $ npm start
 
 ### 目录结构
 app
-  ├── controller (前端的请求会到这里来
+  ├── controller (前端的请求会到这里来)
   │
   ├── model (数据库表结构抽象出来的模型)
   │
