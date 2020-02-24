@@ -50,7 +50,7 @@ export default (appInfo: EggAppInfo) => {
     client: {
       port: 6379,
       host: '127.0.0.1',
-      password: '',
+      password: '123456',
       db: 0
     }
   };

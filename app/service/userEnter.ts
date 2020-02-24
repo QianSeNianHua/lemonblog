@@ -58,6 +58,10 @@ export default class UserEnter extends Service {
         userUUID: res.userUUID
       });
 
+      this.app.redis.get('token').then(value => {
+        console.log(value);
+      });
+
       res = ResponseWrapper.mark(CodeNum.SUCCESS, '登录成功', { token }).toString();
     } else {
       // 登录失败
