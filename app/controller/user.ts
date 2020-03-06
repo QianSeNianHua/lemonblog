@@ -2,7 +2,7 @@
  * @Author: xzt
  * @Date: 2019-12-19 11:53:13
  * @Last Modified by: xzt
- * @Last Modified time: 2020-02-01 16:15:21
+ * @Last Modified time: 2020-03-06 17:40:07
  */
 import { Controller } from 'egg';
 import { rd } from '../../lib/routerDecorate/index';
@@ -55,7 +55,7 @@ export default class User extends Controller {
   /**
    * 修改用户信息
    */
-  @rd.post('/modifyUserInfo')
+  @rd.post('/modifyUserInfo', 'verifyToken')
   public async modifyUserInfo () {
     const { ctx, service } = this;
 

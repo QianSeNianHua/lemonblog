@@ -2,7 +2,7 @@
  * @Author: xzt
  * @Date: 2019-12-15 00:49:25
  * @Last Modified by: xzt
- * @Last Modified time: 2020-02-01 16:05:54
+ * @Last Modified time: 2020-03-06 17:48:08
  */
 import * as JWT from 'jsonwebtoken';
 import * as fs from 'fs';
@@ -27,13 +27,14 @@ export default class Token {
   /**
    * 生成token
    * @param data 数据
+   * @param exp 过期时间，单位天数
    */
-  generateToken (data: object) {
+  generateToken (data: object, exp = 1) {
     const iat = new Date().getTime();
 
     let token = JWT.sign({
       iat, // 签发时间
-      exp: iat + this.exp, // 过期时间
+      exp: iat + 1000 * 60 * 60 * 24 * exp, // 过期时间
       ...data
     }, this.privateKey, {
       algorithm: this.alg
@@ -58,7 +59,7 @@ export default class Token {
       return { ...result };
     } else {
       // 过期
-      return { type: false };
+      return false;
     }
   }
 }

@@ -2,7 +2,7 @@
  * @Author: xzt
  * @Date: 2019-12-13 17:51:54
  * @Last Modified by: xzt
- * @Last Modified time: 2020-02-01 16:05:43
+ * @Last Modified time: 2020-03-06 16:47:21
  */
 
 /**
@@ -64,6 +64,7 @@ export enum CodeNum {
   SUCCESS = 0,
   WARN = 1,
   ERROR = 2,
+  API_ERROR = 400,
   NO_PARAM = 500,
   NODATA = '0003',
   FEAILED = '0004',
@@ -82,6 +83,7 @@ export enum CodeNum {
  */
 export enum CodeMsg {
   SUCCESS = '查询成功',
+  API_ERROR = '错误请求',
   NODATA = '查询成功无记录',
   FEAILED = '查询失败',
   NO_PARAM = '少了参数',

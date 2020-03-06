@@ -2,12 +2,13 @@
  * @Author: xzt
  * @Date: 2019-12-15 00:49:12
  * @Last Modified by: xzt
- * @Last Modified time: 2020-02-01 16:13:59
+ * @Last Modified time: 2020-03-06 17:55:02
  */
 import { Service, Context } from 'egg';
 import sequelize from 'sequelize';
 import { ResponseWrapper, CodeNum, CodeMsg } from '../../utils/ResponseWrapper';
 import Token from '../../utils/Token';
+import * as uuid from 'uuid/v4';
 
 export default class UserEnter extends Service {
   constructor (ctx: Context) {
@@ -33,6 +34,7 @@ export default class UserEnter extends Service {
    */
   private async classicsLogin () {
     let res;
+    const state = this.data.state;
 
     try {
       const account = this.data.account;
@@ -53,14 +55,20 @@ export default class UserEnter extends Service {
     if (res.count === 1) {
       // 登录成功
 
+      // 生成客户端唯一地址
+      const clientID = uuid();
+
       // 生成token
       const token = new Token().generateToken({
-        userUUID: res.userUUID
-      });
+        userUUID: res.userUUID,
+        clientID
+      }, state ? 7 : 1);
 
-      this.app.redis.get('token').then(value => {
-        console.log(value);
-      });
+      // 存入redis
+      // expiryMode(过期模式): ex秒级时间, px毫秒级时间
+      // time: 过期时间
+      // setMode(模式设置): nx键不存在才设置成功, xx键存在才设置成功
+      await this.app.redis.set(`userUUID:${res.userUUID}`, JSON.stringify({ clientID }), 'ex', 15 * 24 * 60 * 60);
 
       res = ResponseWrapper.mark(CodeNum.SUCCESS, '登录成功', { token }).toString();
     } else {
@@ -134,7 +142,6 @@ export default class UserEnter extends Service {
 
   /**
    * 修改用户信息
-   * @param userUUID 用户唯一id
    * @param nickname 用户昵称
    * @param briefIntro 个性签名(可选)
    * @param portraitURL 头像(可选)
@@ -142,16 +149,16 @@ export default class UserEnter extends Service {
   public async modifyUserInfo () {
     // 检查参数
     if (!this.data.nickname) {
-      this.ctx.throw(CodeNum.NO_PARAM, `${CodeMsg.NO_PARAM}: nickname。`);
+      this.ctx.throw(CodeNum.API_ERROR, `${CodeMsg.NO_PARAM}: nickname。`);
     }
 
-    let res = await this.ctx.model.User.update({
+    await this.ctx.model.User.update({
       nickname: this.data.nickname || null,
       briefIntro: this.data.briefIntro || null,
       portraitURL: this.data.portraitURL || null
     }, {
       where: {
-        userUUID: this.data.userUUID
+        userUUID: this.ctx.middleParams.userUUID
       }
     });
 
