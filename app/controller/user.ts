@@ -2,7 +2,7 @@
  * @Author: xzt
  * @Date: 2019-12-19 11:53:13
  * @Last Modified by: xzt
- * @Last Modified time: 2020-03-06 17:40:07
+ * @Last Modified time: 2020-03-07 18:16:31
  */
 import { Controller } from 'egg';
 import { rd } from '../../lib/routerDecorate/index';
@@ -55,7 +55,7 @@ export default class User extends Controller {
   /**
    * 修改用户信息
    */
-  @rd.post('/modifyUserInfo', 'verifyToken')
+  @rd.post('/modifyUserInfo', 'verifyToken', 'remoteLogin')
   public async modifyUserInfo () {
     const { ctx, service } = this;
 
@@ -65,7 +65,7 @@ export default class User extends Controller {
   /**
    * 重置密码
    */
-  @rd.post('/resetpw')
+  @rd.post('/resetpw', 'verifyToken', 'remoteLogin')
   public async resetPassword () {
     const { ctx, service } = this;
 
@@ -75,10 +75,10 @@ export default class User extends Controller {
   /**
    * 密码找回
    */
-  @rd.post('/recover')
+  @rd.post('/recover', 'verifyToken', 'remoteLogin')
   public async recover () {
     const { ctx, service } = this;
 
-    ctx.body = '密码找回';
+    ctx.body = '密码找回功能暂未开放';
   }
 }

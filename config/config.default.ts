@@ -71,6 +71,13 @@ export default (appInfo: EggAppInfo) => {
     dir: path.join(appInfo.baseDir, 'app/public')
   };
 
+  // request参数校验
+  // 基于parameter
+  config.validate = {
+    // convert: true, // 对参数可以使用convertType规则进行类型转换
+    // validateRoot: false,   // 限制被验证值必须是一个对象。
+  };
+
   // add your special config in here
   const bizConfig = {
     sourceUrl: `https://github.com/eggjs/examples/tree/master/${appInfo.name}`,

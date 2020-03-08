@@ -7,6 +7,9 @@ import { rd } from '../../lib/routerDecorate/index';
 @rd.prefix('/file')
 export default class File extends Controller {
 
+  /**
+   * 获取格式化后的文章列表
+   */
   @rd.post('/getFileList')
   public async getFileList () {
     const { ctx, service } = this;
@@ -14,13 +17,20 @@ export default class File extends Controller {
     ctx.body = await service.fileDocument.getFormatFileList();
   }
 
+  /**
+   * 搜索
+   */
   @rd.post('/searchFiles')
   public async searchFiles () {
     const { ctx, service } = this;
 
-    ctx.body = await service.fileDocument.searchFiles();
+    // ctx.body = await service.fileDocument.searchFiles();
+    ctx.body = '搜索功能暂未开放';
   }
 
+  /**
+   * 获取文章内容
+   */
   @rd.post('/getArticle')
   public async getArticle () {
     const { ctx, service } = this;

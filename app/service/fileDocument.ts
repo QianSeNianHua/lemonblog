@@ -2,12 +2,13 @@
  * @Author: xzt
  * @Date: 2019-12-16 09:49:26
  * @Last Modified by: xzt
- * @Last Modified time: 2020-02-18 16:02:13
+ * @Last Modified time: 2020-03-09 01:00:31
  */
 import { Service, Context } from 'egg';
 import sequelize from 'sequelize';
 import { ResponseWrapper, CodeNum, CodeMsg } from '../../utils/ResponseWrapper';
 import * as fs from 'fs';
+const Parameter = require('parameter');
 
 export default class FolderShell extends Service {
   constructor (ctx: Context) {
@@ -27,6 +28,24 @@ export default class FolderShell extends Service {
    * @param page 页标
    */
   async getFormatFileList () {
+    // 校验参数
+    this.ctx.validate({
+      userUUID: {
+        type: 'string',
+        required: true
+      },
+      folderId: {
+        type: 'number',
+        required: false
+      },
+      desc: {
+        type: 'boolean',
+        required: false
+      },
+      count: 'int',
+      page: 'int'
+    });
+
     let res = await this.queryFileList();
 
     res = { count: res.count, rows: this.formatFileList(res.rows), page: this.data.page } as any;
@@ -176,9 +195,17 @@ export default class FolderShell extends Service {
 
   /**
    * 获取文章内容
-   * @param fileUUID 文章唯一id
+   * @param fileUUID {string} 文章唯一id
    */
   async getArticle () {
+    // 校验参数
+    this.ctx.validate({
+      fileUUID: {
+        type: 'string',
+        required: true
+      }
+    });
+
     let res = await this.ctx.model.File.findOne({
       raw: true,
       attributes: {
@@ -215,12 +242,14 @@ export default class FolderShell extends Service {
 
   /**
    * 读取文件
-   * @param url 文件地址
+   * @param url {string} 文件地址
    */
   private readFile (url: string) {
-    let data = fs.readFileSync(url, 'utf-8');
-
-    return data;
+    try {
+      return fs.readFileSync(url, 'utf-8');
+    } catch (error) {
+      return '';
+    }
   }
 
   /**

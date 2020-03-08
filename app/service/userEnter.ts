@@ -2,7 +2,7 @@
  * @Author: xzt
  * @Date: 2019-12-15 00:49:12
  * @Last Modified by: xzt
- * @Last Modified time: 2020-03-06 17:55:02
+ * @Last Modified time: 2020-03-07 18:43:29
  */
 import { Service, Context } from 'egg';
 import sequelize from 'sequelize';
@@ -142,16 +142,12 @@ export default class UserEnter extends Service {
 
   /**
    * 修改用户信息
-   * @param nickname 用户昵称
+   * @param userId 用户唯一id(token获取)
+   * @param nickname 用户昵称(可选)
    * @param briefIntro 个性签名(可选)
    * @param portraitURL 头像(可选)
    */
   public async modifyUserInfo () {
-    // 检查参数
-    if (!this.data.nickname) {
-      this.ctx.throw(CodeNum.API_ERROR, `${CodeMsg.NO_PARAM}: nickname。`);
-    }
-
     await this.ctx.model.User.update({
       nickname: this.data.nickname || null,
       briefIntro: this.data.briefIntro || null,
@@ -167,19 +163,19 @@ export default class UserEnter extends Service {
 
   /**
    * 重置密码
-   * @param userUUID 用户唯一id
+   * @param userId 用户唯一id(token获取)
    * @param oldPassword 旧密码
    * @param newPassword 新密码
    */
   public async resetPassword () {
     // 检查参数
-    if (!this.data.newPassword) {
-      this.ctx.throw(500, `${CodeMsg.NO_PARAM}: newPassword。`);
+    if (!this.data.newPassword || !this.data.oldPassword) {
+      this.ctx.throw(CodeNum.API_ERROR, CodeMsg.API_ERROR);
     }
 
     let pw = await this.ctx.model.User.findOne({
       where: {
-        userUUID: this.data.userUUID,
+        userUUID: this.ctx.middleParams.userUUID,
         password: this.data.oldPassword
       }
     });
@@ -189,11 +185,11 @@ export default class UserEnter extends Service {
       return ResponseWrapper.mark(CodeNum.ERROR, '密码不正确', { }).toString();
     }
 
-    let t = await this.ctx.model.User.update({
+    await this.ctx.model.User.update({
       password: this.data.newPassword
     }, {
       where: {
-        userUUID: this.data.userUUID
+        userUUID: this.ctx.middleParams.userUUID
       }
     });
 

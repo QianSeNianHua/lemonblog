@@ -73,3 +73,7 @@ https://cool-admin.com/
 
 不靠谱的Egg.js(茶叶蛋，ts-egg被叫成tea egg)
 https://claude-ray.github.io/2019/09/17/egg-framework-dev/
+
+
+### 插件教程
+[egg-validator](https://www.cnblogs.com/hengyumo/p/11134619.html)

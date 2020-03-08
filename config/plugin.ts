@@ -24,6 +24,13 @@ const plugin: EggPlugin = {
   redis: {
     enable: true,
     package: 'egg-redis'
+  },
+
+  // request参数校验
+  // validator
+  validate: {
+    enable: true,
+    path: path.resolve(__dirname, '../lib/egg-validate')
   }
 };
 

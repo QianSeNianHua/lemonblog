@@ -2,7 +2,7 @@
  * @Author: xzt
  * @Date: 2019-12-16 00:02:58
  * @Last Modified by: xzt
- * @Last Modified time: 2020-02-18 14:12:19
+ * @Last Modified time: 2020-03-07 19:00:10
  */
 import { Service, Context } from 'egg';
 import sequelize from 'sequelize';
@@ -24,6 +24,11 @@ export default class FolderShell extends Service {
    * @param page 页标
    */
   async getFolderList () {
+    // 检查参数
+    if (!this.data.userUUID || (!this.data.count && this.data.count !== 0) || (!this.data.page && this.data.page !== 0)) {
+      this.ctx.throw(CodeNum.API_ERROR, CodeMsg.API_ERROR);
+    }
+
     let res = await this.ctx.model.Folder.findAndCountAll({
       raw: true,
       attributes: {
@@ -62,8 +67,8 @@ export default class FolderShell extends Service {
       this.ctx.throw(500, `${CodeMsg.NO_PARAM}: folderName。`);
     }
 
-    let res = await this.ctx.model.Folder.create({
-      userId: this.data.userId,
+    await this.ctx.model.Folder.create({
+      userId: this.ctx.middleParams.userUUID,
       folderName: this.data.folderName,
       thumbnailURL: this.data.thumbnailURL || null
     } as any);
@@ -80,16 +85,16 @@ export default class FolderShell extends Service {
    */
   async modifyFolder () {
     // 检查参数
-    if (!this.data.userId || !this.data.folderId || !this.data.folderName) {
-      this.ctx.throw(500, `${CodeMsg.NO_PARAM}: folderId, folderName。`);
+    if (!this.data.folderId || !this.data.folderName) {
+      this.ctx.throw(CodeNum.API_ERROR, CodeMsg.API_ERROR);
     }
 
-    let res = await this.ctx.model.Folder.update({
+    await this.ctx.model.Folder.update({
       folderName: this.data.folderName,
       thumbnailURL: this.data.thumbnailURL || null
     }, {
       where: {
-        userId: this.data.userId,
+        userId: this.ctx.middleParams.userUUID,
         folderId: this.data.folderId
       }
     });
@@ -98,6 +103,7 @@ export default class FolderShell extends Service {
   }
 
   /**
+   * 暂时不知道干嘛用
    * 获取分类文件夹信息
    * @param userId 用户唯一id(token获取)
    * @param folderId 文件夹id
@@ -129,11 +135,11 @@ export default class FolderShell extends Service {
    */
   async deleteFolder () {
     // 检查参数
-    if (!this.data.userId || !this.data.folderId) {
+    if (!this.data.folderId) {
       this.ctx.throw(500, `${CodeMsg.NO_PARAM}: folderId。`);
     }
 
-    let res = await this.app.sequelize.query(`call deleteFolder(${this.data.userId},${this.data.folderId});`);
+    await this.app.sequelize.query(`call deleteFolder(${this.ctx.middleParams.userUUID},${this.data.folderId});`);
 
     return ResponseWrapper.mark(CodeNum.SUCCESS, CodeMsg.SUCCESS, { }).toString();
   }
