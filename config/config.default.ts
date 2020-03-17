@@ -34,7 +34,7 @@ export default (appInfo: EggAppInfo) => {
 
   // mariadb
   config.sequelize = {
-    dialect: 'mariadb',
+    dialect: 'mysql',
     database: 'lemonblog',
     define: {
       timestamps: false,  // 时间戳，会给表名加上s
@@ -49,7 +49,7 @@ export default (appInfo: EggAppInfo) => {
   config.redis = {
     client: {
       port: 6379,
-      host: '127.0.0.1',
+      host: '192.168.56.102',
       password: 'root',
       db: 1
     }

@@ -19,7 +19,7 @@ export default () => {
 
   // mariadb
   config.sequelize = {
-    host: '127.0.0.1',
+    host: '192.168.56.102',
     port: 3306,
     username: 'root',
     password: 'root'
