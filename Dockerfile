@@ -41,3 +41,5 @@ CMD npm start
 # 3.安装npm依赖
 # 4.将服务器上的应用拷贝到docker里
 # 5.暴露docker容器的端口，然后启动应用
+
+

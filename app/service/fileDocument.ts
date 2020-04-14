@@ -2,13 +2,12 @@
  * @Author: xzt
  * @Date: 2019-12-16 09:49:26
  * @Last Modified by: xzt
- * @Last Modified time: 2020-03-09 01:00:31
+ * @Last Modified time: 2020-03-27 10:32:03
  */
 import { Service, Context } from 'egg';
 import sequelize from 'sequelize';
 import { ResponseWrapper, CodeNum, CodeMsg } from '../../utils/ResponseWrapper';
 import * as fs from 'fs';
-const Parameter = require('parameter');
 
 export default class FolderShell extends Service {
   constructor (ctx: Context) {
