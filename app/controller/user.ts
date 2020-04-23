@@ -2,7 +2,7 @@
  * @Author: xzt
  * @Date: 2019-12-19 11:53:13
  * @Last Modified by: xzt
- * @Last Modified time: 2020-03-07 18:16:31
+ * @Last Modified time: 2020-04-23 19:48:30
  */
 import { Controller } from 'egg';
 import { rd } from '../../lib/routerDecorate/index';
@@ -20,6 +20,18 @@ export default class User extends Controller {
     const { ctx, service } = this;
 
     ctx.body = await service.userEnter.login();
+  }
+
+  /**
+   * 获取验证码
+   */
+  @rd.get('/verify')
+  public async verify () {
+    const { ctx, service } = this;
+
+    let captcha = await this.service.userEnter.getVerify();
+    ctx.response.type = 'image/svg+xml';
+    ctx.body = captcha.data;
   }
 
   /**
@@ -74,6 +86,7 @@ export default class User extends Controller {
 
   /**
    * 密码找回
+   * 功能暂未开放
    */
   @rd.post('/recover', 'verifyToken', 'remoteLogin')
   public async recover () {

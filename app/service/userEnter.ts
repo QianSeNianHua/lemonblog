@@ -2,13 +2,14 @@
  * @Author: xzt
  * @Date: 2019-12-15 00:49:12
  * @Last Modified by: xzt
- * @Last Modified time: 2020-03-07 18:43:29
+ * @Last Modified time: 2020-04-23 20:05:18
  */
 import { Service, Context } from 'egg';
 import sequelize from 'sequelize';
 import { ResponseWrapper, CodeNum, CodeMsg } from '../../utils/ResponseWrapper';
 import Token from '../../utils/Token';
 import * as uuid from 'uuid/v4';
+import { generalVerify, compareVerify } from '../../utils/Verify';
 
 export default class UserEnter extends Service {
   constructor (ctx: Context) {
@@ -30,19 +31,50 @@ export default class UserEnter extends Service {
    * 经典登录
    * @param {string} account 账户
    * @param {string} password 密码
-   * @param {boolean} state 七天免登录
+   * @param {string} verify 验证码
+   * @param {boolean} state 七天免登录，true表示启用
    */
   private async classicsLogin () {
+    // 校验参数
+    this.ctx.validate({
+      account: {
+        type: 'string',
+        required: true
+      },
+      password: {
+        type: 'string',
+        required: true
+      },
+      verify: {
+        type: 'string',
+        required: true
+      },
+      state: {
+        type: 'boolean',
+        required: true
+      }
+    });
+
     let res;
+    const code = this.ctx.session.code + ''; // 正确的验证码
+    const verify = this.data.verify + ''; // 传进来的验证码
     const state = this.data.state;
 
+    // 判断验证码
+    if (!compareVerify(code, verify)) {
+      res = ResponseWrapper.mark(CodeNum.ERROR, '验证码错误', { }).toString();
+
+      return res;
+    }
+
+    // 判断账户密码
     try {
       const account = this.data.account;
       const password = this.data.password;
 
       res = await this.ctx.model.User.findOne({
         raw: true,
-        attributes: [[ (sequelize.fn('count', sequelize.col('userId')) as any), 'count' ], 'userUUID' ],
+        attributes: [[ (sequelize.fn('count', sequelize.col('userId')) as any), 'count' ], 'userUUID', 'userId' ],
         where: {
           account,
           password
@@ -60,6 +92,7 @@ export default class UserEnter extends Service {
 
       // 生成token
       const token = new Token().generateToken({
+        userId: res.userId,
         userUUID: res.userUUID,
         clientID
       }, state ? 7 : 1);
@@ -77,6 +110,17 @@ export default class UserEnter extends Service {
     }
 
     return res;
+  }
+
+  /**
+   * 获取验证码
+   */
+  public async getVerify () {
+    const captcha = generalVerify();
+
+    this.ctx.session.code = captcha.text;
+
+    return captcha;
   }
 
   /**
@@ -109,9 +153,9 @@ export default class UserEnter extends Service {
 
   /**
    * 用户注册
-   * @param account 账户
-   * @param password 密码
-   * @param nickname 昵称
+   * @param {string} account 账户
+   * @param {string} password 密码
+   * @param {string} nickname 昵称
    *
    */
   public async registered () {
@@ -142,19 +186,35 @@ export default class UserEnter extends Service {
 
   /**
    * 修改用户信息
-   * @param userId 用户唯一id(token获取)
-   * @param nickname 用户昵称(可选)
-   * @param briefIntro 个性签名(可选)
-   * @param portraitURL 头像(可选)
+   * @param {number} userId 用户唯一id(token获取)
+   * @param {string} nickname 用户昵称(可选)
+   * @param {string} briefIntro 个性签名(可选)
+   * @param {string} portraitURL 头像(可选)
    */
   public async modifyUserInfo () {
+    // 检查参数
+    this.ctx.validate({
+      nickname: {
+        type: 'string',
+        required: false
+      },
+      briefIntro: {
+        type: 'string',
+        required: false
+      },
+      portraitURL: {
+        type: 'string',
+        required: false
+      }
+    });
+
     await this.ctx.model.User.update({
-      nickname: this.data.nickname || null,
-      briefIntro: this.data.briefIntro || null,
-      portraitURL: this.data.portraitURL || null
+      nickname: this.data.nickname,
+      briefIntro: this.data.briefIntro,
+      portraitURL: this.data.portraitURL
     }, {
       where: {
-        userUUID: this.ctx.middleParams.userUUID
+        userId: this.ctx.middleParams.userId
       }
     });
 
@@ -163,15 +223,22 @@ export default class UserEnter extends Service {
 
   /**
    * 重置密码
-   * @param userId 用户唯一id(token获取)
-   * @param oldPassword 旧密码
-   * @param newPassword 新密码
+   * @param {number} userId 用户唯一id(token获取)
+   * @param {string} oldPassword 旧密码
+   * @param {string} newPassword 新密码
    */
   public async resetPassword () {
     // 检查参数
-    if (!this.data.newPassword || !this.data.oldPassword) {
-      this.ctx.throw(CodeNum.API_ERROR, CodeMsg.API_ERROR);
-    }
+    this.ctx.validate({
+      oldPassword: {
+        type: 'string',
+        required: true
+      },
+      newPassword: {
+        type: 'string',
+        required: true
+      }
+    });
 
     let pw = await this.ctx.model.User.findOne({
       where: {

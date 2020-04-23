@@ -2,7 +2,7 @@
  * @Author: xzt
  * @Date: 2019-12-16 00:02:58
  * @Last Modified by: xzt
- * @Last Modified time: 2020-03-07 19:00:10
+ * @Last Modified time: 2020-04-23 19:28:51
  */
 import { Service, Context } from 'egg';
 import sequelize from 'sequelize';
@@ -63,13 +63,23 @@ export default class FolderShell extends Service {
    */
   async createFolder () {
     // 检查参数
-    if (!this.data.userId || !this.data.folderName) {
-      this.ctx.throw(500, `${CodeMsg.NO_PARAM}: folderName。`);
-    }
+    this.ctx.validate({
+      folderName: {
+        type: 'string',
+        required: true
+      },
+      thumbnailURL: {
+        type: 'string',
+        required: false
+      }
+    });
+
+    const userId = this.ctx.middleParams.userId;
+    const folderName = this.data.folderName;
 
     await this.ctx.model.Folder.create({
-      userId: this.ctx.middleParams.userUUID,
-      folderName: this.data.folderName,
+      folderName,
+      userId,
       thumbnailURL: this.data.thumbnailURL || null
     } as any);
 
@@ -78,23 +88,34 @@ export default class FolderShell extends Service {
 
   /**
    * 修改分类文件夹
-   * @param userId 用户唯一id(token获取)
+   * @param {number} userId 用户唯一id(token获取)
    * @param folderId 文件夹id
    * @param folderName 名称
    * @param thumbnailURL 缩略图(可选)
    */
   async modifyFolder () {
     // 检查参数
-    if (!this.data.folderId || !this.data.folderName) {
-      this.ctx.throw(CodeNum.API_ERROR, CodeMsg.API_ERROR);
-    }
+    this.ctx.validate({
+      folderId: {
+        type: 'number',
+        required: true
+      },
+      folderName: {
+        type: 'string',
+        required: true
+      },
+      thumbnailURL: {
+        type: 'string',
+        required: false
+      }
+    });
 
     await this.ctx.model.Folder.update({
       folderName: this.data.folderName,
       thumbnailURL: this.data.thumbnailURL || null
     }, {
       where: {
-        userId: this.ctx.middleParams.userUUID,
+        userId: this.ctx.middleParams.userId,
         folderId: this.data.folderId
       }
     });
@@ -130,16 +151,19 @@ export default class FolderShell extends Service {
    * 删除单个分类文件夹
    * 因为分类文件夹下有子文章。如果一次删除多个，则存在误删。
    * 如果删除了文件夹，则相应的子文章也都被删除。
-   * @param userId 用户唯一id(token获取)
-   * @param folderId 文件夹id
+   * @param {number} userId 用户唯一id(token获取)
+   * @param {number} folderId 文件夹id
    */
   async deleteFolder () {
     // 检查参数
-    if (!this.data.folderId) {
-      this.ctx.throw(500, `${CodeMsg.NO_PARAM}: folderId。`);
-    }
+    this.ctx.validate({
+      folderId: {
+        type: 'number',
+        required: true
+      }
+    });
 
-    await this.app.sequelize.query(`call deleteFolder(${this.ctx.middleParams.userUUID},${this.data.folderId});`);
+    await this.app.sequelize.query(`call deleteFolder(${this.ctx.middleParams.userId},${this.data.folderId});`);
 
     return ResponseWrapper.mark(CodeNum.SUCCESS, CodeMsg.SUCCESS, { }).toString();
   }

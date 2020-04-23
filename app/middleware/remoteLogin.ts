@@ -7,20 +7,20 @@ import { CodeNum, CodeMsg } from '../../utils/ResponseWrapper';
 module.exports = (_options, _app) => {
   return async function remoteLogin (ctx: Context, next) {
     const userUUID = ctx.middleParams.userUUID;
-    const oldClientID = ctx.middleParams.clientID;
-    let strClientID = await ctx.app.redis.get(`userUUID:${userUUID}`) as string;
-    let newClientID;
-
+    const newClientID = ctx.middleParams.clientID;
+    let res;
+    let oldClientID;
     try {
-      newClientID = JSON.parse(strClientID).clientID;
+      res = await ctx.app.redis.get(`userUUID:${userUUID}`) as string;
+      oldClientID = JSON.parse(res).clientID;
     } catch (error) {
       // 异地登录，需要重新登录
-      ctx.throw(CodeNum.API_ERROR, CodeMsg.API_ERROR);
+      ctx.throw(CodeNum.API_REFUSE, CodeMsg.API_REFUSE);
     }
 
     if (newClientID !== oldClientID) {
       // 异地登录，需要重新登录
-      ctx.throw(CodeNum.API_ERROR, CodeMsg.API_ERROR);
+      ctx.throw(CodeNum.API_REFUSE, CodeMsg.API_REFUSE);
     } else {
       await next();
     }

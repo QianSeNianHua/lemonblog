@@ -15,15 +15,16 @@ module.exports = (_options, _app) => {
       res = new Token().verifyToken(token);
     } catch (error) {
       // token验证不合法，跳转到登录页面
-      ctx.throw(CodeNum.API_ERROR, CodeMsg.API_ERROR);
+      ctx.throw(CodeNum.API_REFUSE, CodeMsg.API_REFUSE);
     }
 
     if (!res) {
       // token验证过期，跳转到登录页面
       // ctx.redirect() 重定向
-      ctx.throw(CodeNum.API_ERROR, CodeMsg.API_ERROR);
+      ctx.throw(CodeNum.API_REFUSE, CodeMsg.API_REFUSE);
     } else {
       ctx.middleParams = {
+        userId: res.userId,
         userUUID: res.userUUID,
         clientID: res.clientID
       };
