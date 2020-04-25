@@ -89,13 +89,23 @@ export default class File extends Controller {
   }
 
   /**
-   * 发表评论
+   * 作者发布评论
    */
   @rd.post('/announceComment', 'verifyToken', 'remoteLogin')
   public async announceComment () {
     const { ctx, service } = this;
 
     ctx.body = await service.fileDocument.announceComment();
+  }
+
+  /**
+   * 非作者发布评论
+   */
+  @rd.post('/generalComment')
+  public async generalComment () {
+    const { ctx, service } = this;
+
+    ctx.body = await service.fileDocument.generalComment();
   }
 
   /**

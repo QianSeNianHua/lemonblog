@@ -2,7 +2,7 @@
  * @Author: xzt
  * @Date: 2019-12-16 09:49:26
  * @Last Modified by: xzt
- * @Last Modified time: 2020-04-24 18:09:04
+ * @Last Modified time: 2020-04-25 15:19:44
  */
 import { Service, Context } from 'egg';
 import sequelize from 'sequelize';
@@ -548,7 +548,7 @@ export default class FolderShell extends Service {
     });
 
     const fileUUID = this.data.fileUUID;
-    const res = await this.getContentURL(fileUUID);
+    const res = await this.getFileInfo(fileUUID);
 
     if (res) {
       const title = this.data.title;
@@ -568,7 +568,7 @@ export default class FolderShell extends Service {
       // 更新文件内容
       if (content) {
         try {
-          await writeFile(fileName, content);
+          await writeFile(res.fileName, content);
         } catch (error) {
           this.ctx.throw(500, '写入文件失败');
         }
@@ -592,7 +592,7 @@ export default class FolderShell extends Service {
     });
 
     const fileUUID = this.data.fileUUID;
-    const res = await this.getContentURL(fileUUID);
+    const res = await this.getFileInfo(fileUUID);
 
     if (res) {
       // 删除文件
@@ -617,54 +617,151 @@ export default class FolderShell extends Service {
    * 根据fileUUID获取contentURL
    * @param {string} fileUUID 文章id
    */
-  private async getContentURL (fileUUID) {
+  private async getFileInfo (fileUUID) {
     let res = await this.ctx.model.File.findOne({
       raw: true,
-      attributes: [ 'contentURL', 'fileId' ],
+      attributes: [ 'contentURL', 'fileId', 'userId' ],
       where: {
         fileUUID
       }
     });
 
-    return res ? { fileName: res.contentURL, fileId: res.fileId } : null;
+    return res ? { fileName: res.contentURL, fileId: res.fileId, userId: res.userId } : null;
   }
 
+  // userId，作者发布，值为非-1。非作者发布，值为-1
+  // nickname，portraitURL，非作者发布，则需要提供用户的昵称和头像(后端随机给)
+  // level，fatherCommentId，第一层评论，level为1，fatherCommentId为null。第二层评论，level为2，fatherCommentId指向第一层评论的commentId
+  // appointCommentId，如果是@某人，则指向评论的commentId。否则为null
+  // content，评论内容
   /**
    * 作者发布评论
-   * @param fileUUID 文章唯一id
-   * @param userId 作者id。当评论者为作者时，则为该用户的id。当评论者为非作者时，则为-1。
-   * @param level 层级，1和2
-   * @param fatherCommentId 回复的第一层id。当level为1时，此参数为null；当level为2时，此参数不为空
-   * @param appointCommentId 回复的指定用户
-   * @param content 评论内容
+   * @param {string} fileUUID 文章唯一id
+   * @param {number} userId 作者id（token获取）。当评论者为作者时，则为该用户的id。当评论者为非作者时，则为-1。
+   * @param {number} level 层级，1和2
+   * @param {number} fatherCommentId 回复的第一层id。当level为1时，此参数为null；当level为2时，此参数不为空
+   * @param {number} appointCommentId 回复的指定用户
+   * @param {string} content 评论内容
    */
   async announceComment () {
     // 检查参数
     this.ctx.validate({
-      fileUUID: 'string'
+      fileUUID: 'string',
+      level: 'number',
+      fatherCommentId: {
+        type: 'number',
+        required: false
+      },
+      appointCommentId: {
+        type: 'number',
+        required: false
+      },
+      content: 'string'
     });
 
-    this.ctx.model.Comment.create({
+    const res = await this.getFileInfo(this.data.fileUUID);
+
+    if (!res) {
+      // fileUUID错误
+      return ResponseWrapper.mark(CodeNum.ERROR, 'fileUUID参数错误', { }).toString();
+    }
+
+    const level = this.data.level;
+    const fatherCommentId = level === 1 ? null : this.data.fatherCommentId;
+
+    await this.ctx.model.Comment.create({
       userId: this.ctx.middleParams.userId,
       createTime: new Date(),
-      level: this.data.level,
-      fatherCommentId: this.data.fatherCommentId,
+      level,
+      fatherCommentId,
       appointCommentId: this.data.appointCommentId,
       content: this.data.content,
-      fileId:
+      fileId: res.fileId
     } as any);
+
+    return ResponseWrapper.mark(CodeNum.SUCCESS, CodeMsg.SUCCESS, { }).toString();
   }
 
   /**
    * 非作者发布评论
+   * @param {number} fileUUID 文章唯一id
+   * @param {string} nickname 昵称
+   * @param {number} level 层级，1和2
+   * @param {number} fatherCommentId 回复的第一层id。当level为1时，此参数为null；当level为2时，此参数不为空
+   * @param {number} appointCommentId 回复的指定用户
+   * @param {string} content 评论内容
    */
+  async generalComment () {
+    // 检查参数
+    this.ctx.validate({
+      fileUUID: 'string',
+      nickname: 'string',
+      level: 'number',
+      fatherCommentId: {
+        type: 'number',
+        required: false
+      },
+      appointCommentId: {
+        type: 'number',
+        required: false
+      },
+      content: 'string'
+    });
+
+    const res = await this.getFileInfo(this.data.fileUUID);
+
+    if (!res) {
+      // fileUUID错误
+      return ResponseWrapper.mark(CodeNum.ERROR, 'fileUUID参数错误', { }).toString();
+    }
+
+    const level = this.data.level;
+    const fatherCommentId = level === 1 ? null : this.data.fatherCommentId;
+
+    await this.ctx.model.Comment.create({
+      userId: -1,
+      createTime: new Date(),
+      nickname: this.data.nickname,
+      portraitURL: null,
+      level,
+      fatherCommentId,
+      appointCommentId: this.data.appointCommentId,
+      content: this.data.content,
+      fileId: res.fileId
+    } as any);
+
+    return ResponseWrapper.mark(CodeNum.SUCCESS, CodeMsg.SUCCESS, { }).toString();
+  }
 
   /**
    * 删除评论
    * @param commentId 评论id
+   * @param fileUUID 文章id
    */
   async deleteComment () {
+    // 检查参数
+    this.ctx.validate({
+      commentId: 'number',
+      fileUUID: 'string'
+    });
 
+    // 判断fileUUID是否是自己的文章
+    const userId = this.ctx.middleParams.userId;
+    let res = await this.getFileInfo(this.data.fileUUID);
+
+    if (!res || res.userId !== userId) {
+      // 文章id不是作者的文章
+      return ResponseWrapper.mark(CodeNum.ERROR, 'fileUUID参数错误', { }).toString();
+    }
+
+    await this.ctx.model.Comment.destroy({
+      where: {
+        commentId: this.data.commentId,
+        fileId: res.fileId
+      }
+    });
+
+    return ResponseWrapper.mark(CodeNum.SUCCESS, CodeMsg.SUCCESS, { }).toString();
   }
 }
 

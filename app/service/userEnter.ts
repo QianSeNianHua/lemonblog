@@ -2,7 +2,7 @@
  * @Author: xzt
  * @Date: 2019-12-15 00:49:12
  * @Last Modified by: xzt
- * @Last Modified time: 2020-04-24 13:53:06
+ * @Last Modified time: 2020-04-26 00:16:40
  */
 import { Service, Context } from 'egg';
 import sequelize from 'sequelize';
@@ -59,6 +59,8 @@ export default class UserEnter extends Service {
     const code = this.ctx.session.code + ''; // 正确的验证码
     const verify = this.data.verify + ''; // 传进来的验证码
     const state = this.data.state;
+
+    console.log(this.ctx.session);
 
     // 判断验证码
     if (!compareVerify(code, verify)) {
