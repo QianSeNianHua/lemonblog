@@ -42,7 +42,7 @@ export default (appInfo: EggAppInfo) => {
       underscored: false, // 下划线，会给字段加上_
       freezeTableName: true,
     },
-    timezone: '+08:00'
+    timezone: '+08:00' // 上海标准时间
   };
 
   // redis

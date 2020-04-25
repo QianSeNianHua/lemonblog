@@ -1,4 +1,4 @@
-import { AutoIncrement, Column, Model, PrimaryKey, Table, CreatedAt, UpdatedAt, DataType, Unique, AllowNull, ForeignKey, BelongsTo, HasOne, HasMany, BelongsToMany } from 'sequelize-typescript';
+import { AutoIncrement, Column, Model, PrimaryKey, Table, CreatedAt, UpdatedAt, DataType, Unique, AllowNull, ForeignKey, BelongsTo, HasOne, HasMany, BelongsToMany, Default } from 'sequelize-typescript';
 import User from './user';
 import Folder from './folder';
 import Comment from './comment';

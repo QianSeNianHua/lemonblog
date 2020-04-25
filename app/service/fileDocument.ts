@@ -2,12 +2,14 @@
  * @Author: xzt
  * @Date: 2019-12-16 09:49:26
  * @Last Modified by: xzt
- * @Last Modified time: 2020-03-27 10:32:03
+ * @Last Modified time: 2020-04-24 18:09:04
  */
 import { Service, Context } from 'egg';
 import sequelize from 'sequelize';
 import { ResponseWrapper, CodeNum, CodeMsg } from '../../utils/ResponseWrapper';
-import * as fs from 'fs';
+import { UUID4 } from '../../utils/UUID';
+import { writeFile, readFile, deleteFile } from '../../utils/FileOperation';
+import { handleDate } from '../../utils/handleDate';
 
 export default class FolderShell extends Service {
   constructor (ctx: Context) {
@@ -230,25 +232,13 @@ export default class FolderShell extends Service {
     });
 
     if (res && res.contentURL) {
-      const content = this.readFile(res.contentURL);
+      const content = await readFile(res.contentURL);
 
       delete res.contentURL;
       res.content = content;
     }
 
     return ResponseWrapper.mark(CodeNum.SUCCESS, CodeMsg.SUCCESS, res || { }).toString();
-  }
-
-  /**
-   * 读取文件
-   * @param url {string} 文件地址
-   */
-  private readFile (url: string) {
-    try {
-      return fs.readFileSync(url, 'utf-8');
-    } catch (error) {
-      return '';
-    }
   }
 
   /**
@@ -489,20 +479,187 @@ export default class FolderShell extends Service {
   }
 
   /**
-   * 发布评论
-   * @param fileUUID 文章唯一id
-   * @param content 评论内容
-   * @param appointCommentId 回复的指定用户
-   * @param fatherCommentId 回复的第一层id
-   * @param level 层级
-   * @param nickname 昵称
+   * 新建文章
+   * @param {number} userId 用户id(token获取)
+   * @param {number} folderId 文件夹id
+   * @param {string} title 文章标题
+   * @param {string} content 文章内容
    */
-  async announceComment () {
+  async createAritcle () {
+    // 检查参数
+    this.ctx.validate({
+      folderId: {
+        type: 'number',
+        required: true
+      },
+      title: {
+        type: 'string',
+        required: true
+      },
+      content: {
+        type: 'string',
+        required: true
+      }
+    });
 
+    let time = handleDate(new Date().getTime());
+    const fileName = time.year + time.month + time.date + UUID4(6) + '.txt';
+
+    try {
+      // 写入文件成功
+      await writeFile(fileName, this.data.content);
+    } catch (error) {
+      this.ctx.throw(500, '创建文件失败');
+    }
+
+    await this.ctx.model.File.create({
+      title: this.data.title,
+      createTime: new Date(),
+      contentURL: fileName,
+      folderId: this.data.folderId,
+      userId: this.ctx.middleParams.userId,
+      fileUUID: UUID4(12)
+    } as any);
+
+    return ResponseWrapper.mark(CodeNum.SUCCESS, CodeMsg.SUCCESS, { }).toString();
   }
 
   /**
-   * 登录后
+   * 修改文章
+   * @param {string} fileUUID 文章id
+   * @param {string} title 文章标题
+   * @param {string} content 文章内容
+   */
+  async modifyArticle () {
+    // 检查参数
+    this.ctx.validate({
+      fileUUID: {
+        type: 'string',
+        required: true
+      },
+      title: {
+        type: 'string',
+        required: false
+      },
+      content: {
+        type: 'string',
+        required: false
+      }
+    });
+
+    const fileUUID = this.data.fileUUID;
+    const res = await this.getContentURL(fileUUID);
+
+    if (res) {
+      const title = this.data.title;
+      const content = this.data.content;
+
+      // 更新标题
+      if (title) {
+        await this.ctx.model.File.update({
+          title
+        }, {
+          where: {
+            fileUUID
+          }
+        });
+      }
+
+      // 更新文件内容
+      if (content) {
+        try {
+          await writeFile(fileName, content);
+        } catch (error) {
+          this.ctx.throw(500, '写入文件失败');
+        }
+      }
+    }
+
+    return ResponseWrapper.mark(CodeNum.SUCCESS, CodeMsg.SUCCESS, { }).toString();
+  }
+
+  /**
+   * 删除单篇文章
+   * @param {string} fileUUID 文章id
+   */
+  async deleteArticle () {
+    // 检查参数
+    this.ctx.validate({
+      fileUUID: {
+        type: 'string',
+        required: true
+      }
+    });
+
+    const fileUUID = this.data.fileUUID;
+    const res = await this.getContentURL(fileUUID);
+
+    if (res) {
+      // 删除文件
+      try {
+        await deleteFile(res.fileName);
+      // tslint:disable-next-line: no-empty
+      } catch (error) {
+      }
+    }
+
+    // 删除文章
+    await this.ctx.model.File.destroy({
+      where: {
+        fileUUID
+      }
+    });
+
+    return ResponseWrapper.mark(CodeNum.SUCCESS, CodeMsg.SUCCESS, { }).toString();
+  }
+
+  /**
+   * 根据fileUUID获取contentURL
+   * @param {string} fileUUID 文章id
+   */
+  private async getContentURL (fileUUID) {
+    let res = await this.ctx.model.File.findOne({
+      raw: true,
+      attributes: [ 'contentURL', 'fileId' ],
+      where: {
+        fileUUID
+      }
+    });
+
+    return res ? { fileName: res.contentURL, fileId: res.fileId } : null;
+  }
+
+  /**
+   * 作者发布评论
+   * @param fileUUID 文章唯一id
+   * @param userId 作者id。当评论者为作者时，则为该用户的id。当评论者为非作者时，则为-1。
+   * @param level 层级，1和2
+   * @param fatherCommentId 回复的第一层id。当level为1时，此参数为null；当level为2时，此参数不为空
+   * @param appointCommentId 回复的指定用户
+   * @param content 评论内容
+   */
+  async announceComment () {
+    // 检查参数
+    this.ctx.validate({
+      fileUUID: 'string'
+    });
+
+    this.ctx.model.Comment.create({
+      userId: this.ctx.middleParams.userId,
+      createTime: new Date(),
+      level: this.data.level,
+      fatherCommentId: this.data.fatherCommentId,
+      appointCommentId: this.data.appointCommentId,
+      content: this.data.content,
+      fileId:
+    } as any);
+  }
+
+  /**
+   * 非作者发布评论
+   */
+
+  /**
    * 删除评论
    * @param commentId 评论id
    */

@@ -2,7 +2,7 @@
  * @Author: xzt
  * @Date: 2019-12-15 00:49:12
  * @Last Modified by: xzt
- * @Last Modified time: 2020-04-23 20:05:18
+ * @Last Modified time: 2020-04-24 13:53:06
  */
 import { Service, Context } from 'egg';
 import sequelize from 'sequelize';
