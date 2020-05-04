@@ -2,7 +2,7 @@
  * @Author: xzt
  * @Date: 2019-12-19 11:53:13
  * @Last Modified by: xzt
- * @Last Modified time: 2020-04-23 19:48:30
+ * @Last Modified time: 2020-05-02 18:20:31
  */
 import { Controller } from 'egg';
 import { rd } from '../../lib/routerDecorate/index';
@@ -29,9 +29,8 @@ export default class User extends Controller {
   public async verify () {
     const { ctx, service } = this;
 
-    let captcha = await this.service.userEnter.getVerify();
     ctx.response.type = 'image/svg+xml';
-    ctx.body = captcha.data;
+    ctx.body = await this.service.userEnter.getVerify();
   }
 
   /**
@@ -52,6 +51,16 @@ export default class User extends Controller {
     const { ctx, service } = this;
 
     ctx.body = await service.userEnter.getUserInfo('user');
+  }
+
+  /**
+   * 根据token获取用户信息
+   */
+  @rd.post('/inUserInfo', 'verifyToken', 'remoteLogin')
+  public async inUserInfo () {
+    const { ctx, service } = this;
+
+    ctx.body = await service.userEnter.getUserInfoToken();
   }
 
   /**

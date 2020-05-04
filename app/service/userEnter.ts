@@ -2,7 +2,7 @@
  * @Author: xzt
  * @Date: 2019-12-15 00:49:12
  * @Last Modified by: xzt
- * @Last Modified time: 2020-04-26 00:16:40
+ * @Last Modified time: 2020-05-02 18:21:48
  */
 import { Service, Context } from 'egg';
 import sequelize from 'sequelize';
@@ -59,8 +59,6 @@ export default class UserEnter extends Service {
     const code = this.ctx.session.code + ''; // 正确的验证码
     const verify = this.data.verify + ''; // 传进来的验证码
     const state = this.data.state;
-
-    console.log(this.ctx.session);
 
     // 判断验证码
     if (!compareVerify(code, verify)) {
@@ -122,7 +120,11 @@ export default class UserEnter extends Service {
 
     this.ctx.session.code = captcha.text;
 
-    return captcha;
+    if (this.data.type === 'test') {
+      return captcha.data;
+    } else {
+      return ResponseWrapper.mark(CodeNum.SUCCESS, CodeMsg.SUCCESS, { text: captcha.data }).toString();
+    }
   }
 
   /**
@@ -147,6 +149,26 @@ export default class UserEnter extends Service {
       },
       where: {
         userUUID: this.data.userUUID
+      }
+    });
+
+    return ResponseWrapper.mark(CodeNum.SUCCESS, CodeMsg.SUCCESS, res || { }).toString();
+  }
+
+  /**
+   * 根据token获取用户信息
+   * @param token
+   */
+  public async getUserInfoToken () {
+    const userUUID = this.ctx.middleParams.userUUID;
+
+    let res = await this.ctx.model.User.findOne({
+      raw: true,
+      attributes: {
+        exclude: [ 'password', 'userId', 'otherLogin' ]
+      },
+      where: {
+        userUUID
       }
     });
 
