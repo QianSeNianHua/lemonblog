@@ -2,7 +2,7 @@
  * @Author: xzt
  * @Date: 2020-04-24 14:10:05
  * @Last Modified by: xzt
- * @Last Modified time: 2020-04-24 16:03:20
+ * @Last Modified time: 2020-05-07 16:19:19
  */
 import * as uuid from 'uuid/v4';
 
@@ -13,7 +13,7 @@ import * as uuid from 'uuid/v4';
 export function UUID4 (count?: number | undefined) {
   let str: string = uuid();
 
-  str = str.replace('-', '');
+  str = str.replace(/\-/g, '');
   str = str.substr(0, count);
 
   return str;

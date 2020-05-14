@@ -2,7 +2,7 @@
  * @Author: xzt
  * @Date: 2019-12-19 13:59:39
  * @Last Modified by: xzt
- * @Last Modified time: 2019-12-19 14:05:10
+ * @Last Modified time: 2020-05-13 13:12:52
  */
 import { AutoIncrement, Column, Model, PrimaryKey, Table, Validate, DataType, Default, Unique, AllowNull, ForeignKey, BelongsTo, HasOne, HasMany, BelongsToMany } from 'sequelize-typescript';
 import User from './user';
@@ -34,7 +34,6 @@ export default class Folder extends Model<Folder> {
   })
   folderName: string;
 
-  @Default(new Date())
   @Column({
     type: DataType.DATE(6),
     comment: '创建时间'
@@ -49,7 +48,7 @@ export default class Folder extends Model<Folder> {
   userId: number;
 
   @Column({
-    type: DataType.STRING(50),
+    type: DataType.STRING(120),
     comment: '缩略图'
   })
   thumbnailURL: string;

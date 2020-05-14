@@ -2,13 +2,18 @@
  * @Author: xzt
  * @Date: 2020-04-24 13:55:00
  * @Last Modified by: xzt
- * @Last Modified time: 2020-04-24 16:34:09
+ * @Last Modified time: 2020-05-13 15:09:53
  */
 import * as fs from 'fs';
 import * as path from 'path';
 
 // file文件路径
-const fileUrl = path.join(__dirname, '../files/');
+const fileUrl = path.join('files/');
+
+/**
+ * readFile，writeFile 是把文件内容全部读入内存，再写入文件。针对小型文本文件
+ * createReadStream，createWriteStream 是把文件先读入内存一部分，写一部分，是一点一点操作。针对大型音频、视频文件
+ */
 
 /**
  * 读取文件

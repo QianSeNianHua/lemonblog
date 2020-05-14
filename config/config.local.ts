@@ -19,10 +19,20 @@ export default () => {
 
   // mariadb
   config.sequelize = {
-    host: '127.0.0.1',
+    host: '192.168.56.102',
     port: 3306,
     username: 'root',
     password: 'root'
+  };
+
+  // redis
+  config.redis = {
+    client: {
+      port: 6379,
+      host: '192.168.56.102',
+      password: 'root',
+      db: 1
+    }
   };
 
   return config;
