@@ -61,6 +61,14 @@ export default class File extends Model<File> {
   })
   userId: number;
 
+  @AllowNull(false)
+  @Default(0)
+  @Column({
+    type: DataType.TINYINT({ length: 1 }),
+    comment: '是否发布文章，true发布，false不发布',
+  })
+  isRelease: number;
+
   @BelongsTo(() => Folder, 'folderId')
   folder: Folder;
 

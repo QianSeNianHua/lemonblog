@@ -2,7 +2,7 @@
  * @Author: xzt
  * @Date: 2020-04-24 13:55:00
  * @Last Modified by: xzt
- * @Last Modified time: 2020-05-13 15:09:53
+ * @Last Modified time: 2020-05-14 14:06:53
  */
 import * as fs from 'fs';
 import * as path from 'path';
@@ -57,7 +57,7 @@ export async function writeFile (fileName: string, content: string) {
 }
 
 /**
- * 删除文件
+ * 异步删除文件
  * @param {string} fileName 文件名称
  */
 export async function deleteFile (fileName: string) {

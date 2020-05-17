@@ -2,7 +2,7 @@
  * @Author: xzt
  * @Date: 2019-12-16 09:49:26
  * @Last Modified by: xzt
- * @Last Modified time: 2020-04-25 15:19:44
+ * @Last Modified time: 2020-05-16 10:31:57
  */
 import { Service, Context } from 'egg';
 import sequelize from 'sequelize';
@@ -124,7 +124,7 @@ export default class FolderShell extends Service {
   }
 
   /**
-   * sql获取文章列表
+   * sql获取已发布的文章列表
    */
   private async queryFileList () {
     let desc;
@@ -175,6 +175,9 @@ export default class FolderShell extends Service {
           ...(folder as any)
         }
       ],
+      where: {
+        isRelease: 1
+      },
       order: [
         [ 'createTime', ...descin ]
       ],
@@ -217,7 +220,8 @@ export default class FolderShell extends Service {
         ]
       },
       where: {
-        fileUUID: this.data.fileUUID
+        fileUUID: this.data.fileUUID,
+        isRelease: 1
       },
       include: [
         {
@@ -267,7 +271,8 @@ export default class FolderShell extends Service {
         exclude: [ 'fileId', 'fileUUID', 'title', 'createTime', 'visit', 'contentURL', 'folderId', 'userId' ]
       },
       where: {
-        fileUUID: this.data.fileUUID
+        fileUUID: this.data.fileUUID,
+        isRelease: 1
       }
     });
 
@@ -284,7 +289,8 @@ export default class FolderShell extends Service {
         {
           model: this.ctx.model.File,
           where: {
-            fileUUID: this.data.fileUUID
+            fileUUID: this.data.fileUUID,
+            isRelease: 1
           },
           attributes: [ ]
         },
@@ -319,7 +325,8 @@ export default class FolderShell extends Service {
         {
           model: this.ctx.model.File,
           where: {
-            fileUUID: this.data.fileUUID
+            fileUUID: this.data.fileUUID,
+            isRelease: 1
           },
           attributes: [ ]
         },
@@ -367,7 +374,8 @@ export default class FolderShell extends Service {
         {
           model: this.ctx.model.File,
           where: {
-            fileUUID: this.data.fileUUID
+            fileUUID: this.data.fileUUID,
+            isRelease: 1
           },
           attributes: [ ]
         },
@@ -407,7 +415,8 @@ export default class FolderShell extends Service {
         {
           model: this.ctx.model.File,
           where: {
-            fileUUID: this.data.fileUUID
+            fileUUID: this.data.fileUUID,
+            isRelease: 1
           },
           attributes: [ ]
         },
