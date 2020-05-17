@@ -1,17 +1,17 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : mariadb
+ Source Server         : docker
  Source Server Type    : MariaDB
- Source Server Version : 100410
- Source Host           : 127.0.0.1:3306
+ Source Server Version : 100412
+ Source Host           : 192.168.56.102:3306
  Source Schema         : lemonblog
 
  Target Server Type    : MariaDB
- Target Server Version : 100410
+ Target Server Version : 100412
  File Encoding         : 65001
 
- Date: 19/12/2019 18:42:06
+ Date: 17/05/2020 11:30:04
 */
 
 SET NAMES utf8mb4;
@@ -58,18 +58,19 @@ CREATE TABLE `file`  (
   `folderId` int(11) NULL DEFAULT NULL COMMENT '分类文件夹的id',
   `userId` int(11) NULL DEFAULT NULL COMMENT '用户id',
   `fileUUID` varchar(45) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '文章唯一Id',
+  `isRelease` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否发布文章，true发布，false不发布',
   PRIMARY KEY (`fileId`) USING BTREE,
   INDEX `folderId`(`folderId`) USING BTREE,
   INDEX `userId`(`userId`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '文章' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 42 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '文章' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of file
 -- ----------------------------
-INSERT INTO `file` VALUES (1, '文章一', '2019-12-09 17:59:20.000', 3, 'F:/wamp64/www/egg/files/20191206170950.txt', 1, 1, '0dbe3d99-d554-4312-9512-9d40442e20f9');
-INSERT INTO `file` VALUES (2, '文章二', '2019-12-09 18:59:20.000', NULL, 'F:/wamp64/www/egg/files/20191206170950.txt', 1, 1, '297199eb-fa0a-4fef-b92f-9d91eff9b5a5');
-INSERT INTO `file` VALUES (3, '文章三', '2019-12-10 17:59:20.000', 50, 'F:/wamp64/www/egg/files/20191206170950.txt', 2, 1, '7e5dc99b-6788-4a6a-8cdb-e071ccee40c1');
-INSERT INTO `file` VALUES (4, '文章四', '2019-12-10 18:59:20.000', 41, 'F:/wamp64/www/egg/files/20191206170950.txt', 2, 1, 'd53ddf17-8ad5-45ca-914f-58b6aa2f390e');
+INSERT INTO `file` VALUES (1, '文章一', '2019-12-09 17:59:20.000', 3, '20191206170950.txt', 1, 1, '0dbe3d99-d554-4312-9512-9d40442e20f9', 1);
+INSERT INTO `file` VALUES (2, '文章二', '2019-12-09 18:59:20.000', NULL, '20191206170950.txt', 1, 1, '297199eb-fa0a-4fef-b92f-9d91eff9b5a5', 1);
+INSERT INTO `file` VALUES (3, '文章三', '2019-12-10 17:59:20.000', 50, '20191206170950.txt', 2, 1, '7e5dc99b-6788-4a6a-8cdb-e071ccee40c1', 1);
+INSERT INTO `file` VALUES (4, '文章四', '2019-12-10 18:59:20.000', 41, '20191206170950.txt', 2, 1, 'd53ddf17-8ad5-45ca-914f-58b6aa2f390e', 1);
 
 -- ----------------------------
 -- Table structure for folder
@@ -80,17 +81,20 @@ CREATE TABLE `folder`  (
   `folderName` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件夹名称',
   `createTime` datetime(3) NULL DEFAULT NULL COMMENT '创建时间',
   `userId` int(11) NULL DEFAULT NULL COMMENT '用户id',
-  `thumbnailURL` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '缩略图',
+  `thumbnailURL` varchar(120) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '缩略图',
   PRIMARY KEY (`folderId`) USING BTREE,
   INDEX `userId`(`userId`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '文件夹' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 79 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '文件夹' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of folder
 -- ----------------------------
-INSERT INTO `folder` VALUES (1, 'aaa', '2019-12-08 17:59:20.000', 1, NULL);
-INSERT INTO `folder` VALUES (2, 'bbb', '2019-12-08 18:59:20.000', 1, NULL);
-INSERT INTO `folder` VALUES (3, 'xgxxr', '2019-12-19 15:08:14.662', 1, NULL);
+INSERT INTO `folder` VALUES (1, 'aaa', '2019-12-08 17:59:20.000', 1, '93585f57-56fc-f968-9f07-4aaf740d6f89\\image\\7106576b467c4cf8a52ea0913381dbdd.jpg');
+INSERT INTO `folder` VALUES (2, 'bbb', '2019-12-08 18:59:20.000', 1, '93585f57-56fc-f968-9f07-4aaf740d6f89\\image\\fe1fba93c5eb4d83aeed1a91ae478857.jpg');
+INSERT INTO `folder` VALUES (4, 'BBB', '2019-12-19 15:08:14.662', 2, NULL);
+INSERT INTO `folder` VALUES (59, 'Javascript', '2020-05-08 09:33:05.993', 1, '93585f57-56fc-f968-9f07-4aaf740d6f89\\image\\9441b0705048.jpg');
+INSERT INTO `folder` VALUES (60, 'Vue', '2020-05-08 09:33:38.464', 1, '93585f57-56fc-f968-9f07-4aaf740d6f89\\image\\a24b54e8e92b45cb85907491194d685d.jpg');
+INSERT INTO `folder` VALUES (61, 'Webpack', '2020-05-08 09:34:26.698', 1, '93585f57-56fc-f968-9f07-4aaf740d6f89\\image\\a3ca56b03dd8459eb745a6742686938c.jpg');
 
 -- ----------------------------
 -- Table structure for opensource
@@ -151,10 +155,10 @@ CREATE TABLE `user`  (
 -- ----------------------------
 -- Records of user
 -- ----------------------------
-INSERT INTO `user` VALUES (1, '2019-12-08 17:59:20.000', '柠檬味的蓝海', NULL, NULL, '528627432', '18923960258', NULL, '93585f57-56fc-f968-9f07-4aaf740d6f89');
+INSERT INTO `user` VALUES (1, '2019-12-08 17:59:20.000', '浅色年华', '你好，又来偷看我', NULL, '528627432', '18923960258', NULL, '93585f57-56fc-f968-9f07-4aaf740d6f89');
 INSERT INTO `user` VALUES (2, '2019-12-18 16:11:34.866', 'xzt', NULL, NULL, '123456789', '123123', NULL, '8ac11807-c86f-4caa-9623-3fcb89e9b26c');
 INSERT INTO `user` VALUES (5, '2019-12-18 16:38:08.076', 'xzt', NULL, NULL, '1234567890', '123456', NULL, '3ed23eff-9289-4ddf-92d4-68468c6a990f');
-INSERT INTO `user` VALUES (6, '2019-12-18 16:38:37.054', '1234', '', '', '12345678901', '123456', NULL, 'f32ff2d3-8a69-4cc5-8da4-2779de71295a');
+INSERT INTO `user` VALUES (6, '2019-12-18 16:38:37.054', '1234', NULL, NULL, '12345678901', '123456', NULL, 'f32ff2d3-8a69-4cc5-8da4-2779de71295a');
 
 -- ----------------------------
 -- Function structure for countComment
@@ -181,7 +185,7 @@ CREATE FUNCTION `countFileFromFolder`(_folderId int)
  RETURNS int(11)
 BEGIN
 	DECLARE re INT;
-	SET re = (SELECT count(*) as count FROM file WHERE folderId = _folderId);
+	SET re = (SELECT count(*) as count FROM file WHERE folderId = _folderId AND isRelease = 1);
 	RETURN re;
 END
 ;;
