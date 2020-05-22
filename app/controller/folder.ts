@@ -2,7 +2,7 @@
  * @Author: xzt
  * @Date: 2019-12-19 13:52:27
  * @Last Modified by: xzt
- * @Last Modified time: 2020-03-07 19:00:00
+ * @Last Modified time: 2020-05-22 13:35:42
  */
 import { Controller } from 'egg';
 import { rd } from '../../lib/routerDecorate/index';
@@ -23,7 +23,7 @@ export default class Folder extends Controller {
   }
 
   /**
-   * 新建分类文件夹
+   * 新建/修改 分类文件夹
    */
   @rd.post('/createFolder', 'verifyToken', 'remoteLogin')
   public async createFolder () {
@@ -40,16 +40,6 @@ export default class Folder extends Controller {
     const { ctx, service } = this;
 
     ctx.body = await service.folderShell.deleteFolder();
-  }
-
-  /**
-   * 修改分类文件夹名称
-   */
-  @rd.post('/modifyFolder', 'verifyToken', 'remoteLogin')
-  public async modifyFolder () {
-    const { ctx, service } = this;
-
-    ctx.body = await service.folderShell.modifyFolder();
   }
 
   /**

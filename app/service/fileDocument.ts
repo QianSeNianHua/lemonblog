@@ -2,14 +2,17 @@
  * @Author: xzt
  * @Date: 2019-12-16 09:49:26
  * @Last Modified by: xzt
- * @Last Modified time: 2020-05-16 10:31:57
+ * @Last Modified time: 2020-05-22 13:47:52
  */
 import { Service, Context } from 'egg';
 import sequelize from 'sequelize';
 import { ResponseWrapper, CodeNum, CodeMsg } from '../../utils/ResponseWrapper';
 import { UUID4 } from '../../utils/UUID';
-import { writeFile, readFile, deleteFile } from '../../utils/FileOperation';
+import { writeFile, readFileSync, deleteFile } from '../../utils/FileOperation';
 import { handleDate } from '../../utils/handleDate';
+import * as path from 'path';
+import * as fs from 'fs';
+import { multipleFile } from '../../utils/formData';
 
 export default class FolderShell extends Service {
   constructor (ctx: Context) {
@@ -21,7 +24,7 @@ export default class FolderShell extends Service {
   private data; // 请求数据
 
   /**
-   * 获取格式化后的文章列表
+   * 获取格式化后的文章列表，只获取已发布的文章，供普通用户查看
    * @param userUUID 用户uuid
    * @param folderId 分类文件夹id(可选)
    * @param desc 时间排序。true：倒序，false：正序(可选，默认为倒序)
@@ -47,7 +50,33 @@ export default class FolderShell extends Service {
       page: 'int'
     });
 
-    let res = await this.queryFileList();
+    let res = await this.queryFileList(1, true);
+
+    res = { count: res.count, rows: this.formatFileList(res.rows), page: this.data.page } as any;
+
+    return ResponseWrapper.mark(CodeNum.SUCCESS, CodeMsg.SUCCESS, res).toString();
+  }
+
+  /**
+   * 获取格式化后的文章列表，获取已发布和未发布的所有文章，供写文章时查看
+   * @param userId 用户userId(token获取)
+   * @param folderId 分类文件夹id(可选)
+   * @param desc 时间排序。true：倒序，false：正序(可选，默认为倒序)
+   */
+  async getFolderAllFileList () {
+    // 校验参数
+    this.ctx.validate({
+      folderId: {
+        type: 'number',
+        required: false
+      },
+      desc: {
+        type: 'boolean',
+        required: false
+      }
+    });
+
+    let res = await this.queryFileList(0, false);
 
     res = { count: res.count, rows: this.formatFileList(res.rows), page: this.data.page } as any;
 
@@ -124,9 +153,12 @@ export default class FolderShell extends Service {
   }
 
   /**
-   * sql获取已发布的文章列表
+   * sql获取已发布/所有(包含已发布和未发布)的文章列表
+   * all为0，2，需要userUUID。为1，需要userId(token获取)
+   * @param {boolean} all 0所有，1已发布，2未发布(默认1)
+   * @param {boolean} limit true限制数量，false不限制数量(默认true)
    */
-  private async queryFileList () {
+  private async queryFileList (all: number = 1, limit: boolean = true) {
     let desc;
     if (this.data.desc !== false && !this.data.desc) {
       desc = true;
@@ -144,13 +176,45 @@ export default class FolderShell extends Service {
         },
         attributes: {
           exclude: [ 'userId', 'folderId' ]
-        }
+        },
       };
     } else {
       // 获取该用户下的所有文章
       folder = {
         attributes: [ ]
       };
+    }
+
+    let where;
+    let modelUser: object[] = [];
+    if (all === 0) {
+      where = {
+        userId: this.ctx.middleParams.userId
+      };
+    } else if (all === 1) {
+      where = { isRelease: 1 };
+      modelUser.push({
+        model: this.ctx.model.User,
+        where: {
+          userUUID: this.data.userUUID
+        },
+        attributes: [ ]
+      });
+    } else if (all === 2) {
+      where = {
+        isRelease: 2,
+        userId: this.ctx.middleParams.userId
+      };
+    }
+
+    let limitOffset;
+    if (limit) {
+      limitOffset = {
+        limit: this.data.count,
+        offset: (this.data.page - 1) * this.data.count
+      };
+    } else {
+      limitOffset = {};
     }
 
     let res = await this.ctx.model.File.findAndCountAll({
@@ -160,29 +224,20 @@ export default class FolderShell extends Service {
           [ sequelize.literal('folder.folderName'), 'folderName' ],
           [ sequelize.fn('countComment', sequelize.col('fileId')) as any, 'countComment' ]
         ],
-        exclude: [ 'fileId', 'userId' ]
+        exclude: [ 'fileId', 'userId', 'contentURL' ]
       },
       include: [
-        {
-          model: this.ctx.model.User,
-          where: {
-            userUUID: this.data.userUUID
-          },
-          attributes: [ ]
-        },
+        ...modelUser,
         {
           model: this.ctx.model.Folder,
-          ...(folder as any)
+          ...folder
         }
       ],
-      where: {
-        isRelease: 1
-      },
+      where,
       order: [
         [ 'createTime', ...descin ]
       ],
-      limit: this.data.count,
-      offset: (this.data.page - 1) * this.data.count
+      ...limitOffset
     });
 
     return res;
@@ -198,8 +253,8 @@ export default class FolderShell extends Service {
   }
 
   /**
-   * 获取文章内容
-   * @param fileUUID {string} 文章唯一id
+   * 获取文章内容，只获取已发布的文章，供普通用户编辑
+   * @param {string} fileUUID 文章唯一id
    */
   async getArticle () {
     // 校验参数
@@ -236,10 +291,52 @@ export default class FolderShell extends Service {
     });
 
     if (res && res.contentURL) {
-      const content = await readFile(res.contentURL);
+      const content = readFileSync(res.contentURL);
 
       delete res.contentURL;
       res.content = content;
+    }
+
+    return ResponseWrapper.mark(CodeNum.SUCCESS, CodeMsg.SUCCESS, res || { }).toString();
+  }
+
+  /**
+   * 获取文章内容，可获取已发布或未发布的文章，供管理者编辑
+   * @param {number} userId 用户id(token获取)
+   * @param {string} fileUUID 文章唯一id
+   */
+  async getAllArticle () {
+    // 校验参数
+    this.ctx.validate({
+      fileUUID: {
+        type: 'string',
+        required: true
+      }
+    });
+
+    let res = await this.ctx.model.File.findOne({
+      raw: true,
+      attributes: [ 'fileUUID', 'contentURL', 'title', 'thumbnailURL' ],
+      where: {
+        fileUUID: this.data.fileUUID,
+        userId: this.ctx.middleParams.userId
+      }
+    });
+
+    // 获取图片
+    if (res && res.thumbnailURL) {
+      res.thumbnailURL = `//${this.ctx.host}/${res.thumbnailURL}`;
+    }
+
+    // 获取文章内容
+    if (res && res.contentURL) {
+      const content = readFileSync(res.contentURL);
+
+      delete res.contentURL;
+      res.content = content;
+    } else {
+      delete res.contentURL;
+      res.content = '';
     }
 
     return ResponseWrapper.mark(CodeNum.SUCCESS, CodeMsg.SUCCESS, res || { }).toString();
@@ -491,8 +588,6 @@ export default class FolderShell extends Service {
    * 新建文章
    * @param {number} userId 用户id(token获取)
    * @param {number} folderId 文件夹id
-   * @param {string} title 文章标题
-   * @param {string} content 文章内容
    */
   async createAritcle () {
     // 检查参数
@@ -500,37 +595,66 @@ export default class FolderShell extends Service {
       folderId: {
         type: 'number',
         required: true
-      },
-      title: {
-        type: 'string',
-        required: true
-      },
-      content: {
-        type: 'string',
-        required: true
       }
     });
 
     let time = handleDate(new Date().getTime());
-    const fileName = time.year + time.month + time.date + UUID4(6) + '.txt';
+    // const fileName = time.year + time.month + time.date + UUID4(6) + '.txt';
 
-    try {
-      // 写入文件成功
-      await writeFile(fileName, this.data.content);
-    } catch (error) {
-      this.ctx.throw(500, '创建文件失败');
-    }
+    // try {
+    //   // 写入文件成功
+    //   await writeFile(fileName, this.data.content);
+    // } catch (error) {
+    //   this.ctx.throw(500, '创建文件失败');
+    // }
+
+    const title = `${time.year}-${time.month}-${time.date}`;
 
     await this.ctx.model.File.create({
-      title: this.data.title,
+      title,
       createTime: new Date(),
-      contentURL: fileName,
       folderId: this.data.folderId,
       userId: this.ctx.middleParams.userId,
-      fileUUID: UUID4(12)
+      fileUUID: UUID4(12),
+      isRelease: 0
     } as any);
 
     return ResponseWrapper.mark(CodeNum.SUCCESS, CodeMsg.SUCCESS, { }).toString();
+  }
+
+  /**
+   * 保存文章
+   * @param {number} userId 用户id(token获取)
+   * @param {string} fileUUID 文章id
+   * @param {file} file 图片文件
+   * @param {string} title 文章标题
+   * @param {string} content 文章内容
+   */
+  async saveArticle () {
+    const userId = this.ctx.middleParams.userId;
+
+    const baseDirname = 'files/private';
+    // 获取formData数据，保存图片
+    let res: any = await multipleFile(this.ctx, (stream, fileName) => {
+      const writeStream = fs.createWriteStream(path.resolve(baseDirname, 'doc', fileName));
+      stream.pipe(writeStream);
+    });
+
+    // 获取文章文件地址和图片地址
+    let que = await this.ctx.model.File.findOne({
+      raw: true,
+      where: {
+        userId,
+        fileUUID: res.obj.fileUUID
+      }
+    });
+
+    if (que) {
+      // 判断文章文件地址
+      if (que.contentURL) {
+
+      }
+    }
   }
 
   /**
@@ -574,13 +698,13 @@ export default class FolderShell extends Service {
         });
       }
 
-      // 更新文件内容
+      // 异步更新文件内容
       if (content) {
-        try {
-          await writeFile(res.fileName, content);
-        } catch (error) {
-          this.ctx.throw(500, '写入文件失败');
-        }
+        writeFile(res.fileName, content, err => {
+          if (err) {
+            this.ctx.throw(500, '写入文件失败');
+          }
+        });
       }
     }
 

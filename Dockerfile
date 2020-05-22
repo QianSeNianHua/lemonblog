@@ -1,45 +1,35 @@
-# 设置基础镜像,如果本地没有该镜像，会从Docker.io服务器pull镜像
+# 在容器内运行命令
+# 拉取要创建的新镜像的 base image（基础镜像），类似于面向对象里边的基础类
 FROM node:8.11.3-alpine
 
+# 设置变量
+ENV TIME_ZONE=Asia/Shanghai
+ENV HOME=/home/app
+
 # 设置时区
-RUN apk --update add tzdata \
-    && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
-    && echo "Asia/Shanghai" > /etc/timezone \
-    && apk del tzdata
+RUN \
+  apk --update add tzdata \
+  && cp /usr/share/zoneinfo/${TIME_ZONE} /etc/localtime \
+  && echo "${TIME_ZONE}" > /etc/timezone \
+  && apk del tzdata
 
 # 创建app目录
-RUN mkdir -p /usr/src/app/egg-server
+RUN mkdir -p ${HOME}
 
 # 设置工作目录
-WORKDIR /usr/src/app/egg-server
+WORKDIR ${HOME}
 
-# 拷贝package.json文件到工作目录
-# !!重要：package.json需要单独添加。
-# Docker在构建镜像的时候，是一层一层构建的，仅当这一层有变化时，重新构建对应的层。
-# 如果package.json和源代码一起添加到镜像，则每次修改源码都需要重新安装npm模块，这样木有必要。
-# 所以，正确的顺序是: 添加package.json；安装npm模块；添加源代码。
-COPY package.json /usr/src/app/egg-server/package.json
+# 拷贝，把本机当前目录下的 package.json 拷贝到 Image 的 /usr/src/app/ 文件夹下
+COPY package.json ${HOME}
 
-# 安装npm依赖(使用淘宝的镜像源)
-# 如果使用的境外服务器，无需使用淘宝的镜像源，即改为`RUN npm i`。
-# RUN npm i
-RUN npm i --registry=https://registry.npm.taobao.org
+# 使用 npm 安装 app 所需要的所有依赖
+RUN npm install --production
 
-# 拷贝所有源代码到工作目录
-COPY . /usr/src/app/egg-server
+# 拷贝本地的所有文件到路径中去
+COPY . ${HOME}
 
-# 暴露容器端口
+# 暴露端口
 EXPOSE 7001
 
-# 启动node应用
-CMD npm start
-
-
-# 整个过程
-# 1.拉取docker镜像（并设置时区等）
-# 2.创建docker工作目录，并将package.json拷贝到docker里
-# 3.安装npm依赖
-# 4.将服务器上的应用拷贝到docker里
-# 5.暴露docker容器的端口，然后启动应用
-
-
+# 给容器指定一个执行入口
+CMD npm run start

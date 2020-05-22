@@ -35,6 +35,7 @@ export default class File extends Model<File> {
   })
   createTime: Date;
 
+  @Default(0)
   @Column({
     type: DataType.INTEGER,
     comment: '访客量'
@@ -68,6 +69,12 @@ export default class File extends Model<File> {
     comment: '是否发布文章，true发布，false不发布',
   })
   isRelease: number;
+
+  @Column({
+    type: DataType.STRING(120),
+    comment: '缩略图'
+  })
+  thumbnailURL: string;
 
   @BelongsTo(() => Folder, 'folderId')
   folder: Folder;

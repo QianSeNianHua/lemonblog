@@ -2,7 +2,7 @@
  * @Author: xzt
  * @Date: 2019-12-13 17:51:54
  * @Last Modified by: xzt
- * @Last Modified time: 2020-04-23 19:32:01
+ * @Last Modified time: 2020-05-20 17:57:01
  */
 
 /**
@@ -64,9 +64,9 @@ export enum CodeNum {
   SUCCESS = 0,
   WARN = 1,
   ERROR = 2,
-  API_ERROR = 400,
-  API_REFUSE = 401,
-  NO_PARAM = 500,
+  API_ERROR = 400, // 接口参数错误
+  API_REFUSE = 401, // 接口无权限
+  NO_PARAM = 500, // 500后端报错，503服务挂了
   NODATA = '0003',
   FEAILED = '0004',
   ACCOUNT_ERROR = '1000',

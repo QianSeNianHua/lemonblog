@@ -11,7 +11,7 @@
  Target Server Version : 100412
  File Encoding         : 65001
 
- Date: 17/05/2020 11:30:04
+ Date: 22/05/2020 11:57:15
 */
 
 SET NAMES utf8mb4;
@@ -53,24 +53,26 @@ CREATE TABLE `file`  (
   `fileId` int(11) NOT NULL AUTO_INCREMENT COMMENT '文章id',
   `title` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文章标题',
   `createTime` datetime(3) NULL DEFAULT NULL COMMENT '创建时间',
-  `visit` int(11) NULL DEFAULT NULL COMMENT '访问量',
+  `visit` int(11) NULL DEFAULT 0 COMMENT '访问量',
   `contentURL` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文章内容',
   `folderId` int(11) NULL DEFAULT NULL COMMENT '分类文件夹的id',
   `userId` int(11) NULL DEFAULT NULL COMMENT '用户id',
   `fileUUID` varchar(45) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '文章唯一Id',
   `isRelease` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否发布文章，true发布，false不发布',
+  `thumbnailURL` varchar(120) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '缩略图',
   PRIMARY KEY (`fileId`) USING BTREE,
   INDEX `folderId`(`folderId`) USING BTREE,
   INDEX `userId`(`userId`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 42 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '文章' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 46 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '文章' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of file
 -- ----------------------------
-INSERT INTO `file` VALUES (1, '文章一', '2019-12-09 17:59:20.000', 3, '20191206170950.txt', 1, 1, '0dbe3d99-d554-4312-9512-9d40442e20f9', 1);
-INSERT INTO `file` VALUES (2, '文章二', '2019-12-09 18:59:20.000', NULL, '20191206170950.txt', 1, 1, '297199eb-fa0a-4fef-b92f-9d91eff9b5a5', 1);
-INSERT INTO `file` VALUES (3, '文章三', '2019-12-10 17:59:20.000', 50, '20191206170950.txt', 2, 1, '7e5dc99b-6788-4a6a-8cdb-e071ccee40c1', 1);
-INSERT INTO `file` VALUES (4, '文章四', '2019-12-10 18:59:20.000', 41, '20191206170950.txt', 2, 1, 'd53ddf17-8ad5-45ca-914f-58b6aa2f390e', 1);
+INSERT INTO `file` VALUES (1, '文章一', '2019-12-09 17:59:20.000', 3, '20191206170950.txt', 1, 1, '0dbe3d99-d554-4312-9512-9d40442e20f9', 1, NULL);
+INSERT INTO `file` VALUES (2, '文章二', '2019-12-09 18:59:20.000', 0, '20191206170950.txt', 1, 1, '297199eb-fa0a-4fef-b92f-9d91eff9b5a5', 1, NULL);
+INSERT INTO `file` VALUES (3, '文章三', '2019-12-10 17:59:20.000', 50, '20191206170950.txt', 2, 1, '7e5dc99b-6788-4a6a-8cdb-e071ccee40c1', 1, NULL);
+INSERT INTO `file` VALUES (4, '文章四', '2019-12-10 18:59:20.000', 41, '20191206170950.txt', 2, 1, 'd53ddf17-8ad5-45ca-914f-58b6aa2f390e', 1, NULL);
+INSERT INTO `file` VALUES (42, '2020-05-20', '2020-05-20 19:19:41.928', 0, NULL, 80, 1, '16759ec9f5fa', 0, NULL);
 
 -- ----------------------------
 -- Table structure for folder
@@ -84,17 +86,17 @@ CREATE TABLE `folder`  (
   `thumbnailURL` varchar(120) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '缩略图',
   PRIMARY KEY (`folderId`) USING BTREE,
   INDEX `userId`(`userId`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 79 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '文件夹' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 82 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '文件夹' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of folder
 -- ----------------------------
 INSERT INTO `folder` VALUES (1, 'aaa', '2019-12-08 17:59:20.000', 1, '93585f57-56fc-f968-9f07-4aaf740d6f89\\image\\7106576b467c4cf8a52ea0913381dbdd.jpg');
-INSERT INTO `folder` VALUES (2, 'bbb', '2019-12-08 18:59:20.000', 1, '93585f57-56fc-f968-9f07-4aaf740d6f89\\image\\fe1fba93c5eb4d83aeed1a91ae478857.jpg');
+INSERT INTO `folder` VALUES (2, 'bbba', '2019-12-08 18:59:20.000', 1, '93585f57-56fc-f968-9f07-4aaf740d6f89\\image\\fe1fba93c5eb4d83aeed1a91ae478857.jpg');
 INSERT INTO `folder` VALUES (4, 'BBB', '2019-12-19 15:08:14.662', 2, NULL);
-INSERT INTO `folder` VALUES (59, 'Javascript', '2020-05-08 09:33:05.993', 1, '93585f57-56fc-f968-9f07-4aaf740d6f89\\image\\9441b0705048.jpg');
-INSERT INTO `folder` VALUES (60, 'Vue', '2020-05-08 09:33:38.464', 1, '93585f57-56fc-f968-9f07-4aaf740d6f89\\image\\a24b54e8e92b45cb85907491194d685d.jpg');
+INSERT INTO `folder` VALUES (60, 'Vue', '2020-05-08 09:33:38.464', 1, '93585f57-56fc-f968-9f07-4aaf740d6f89\\image\\132c48bb42ef.jpg');
 INSERT INTO `folder` VALUES (61, 'Webpack', '2020-05-08 09:34:26.698', 1, '93585f57-56fc-f968-9f07-4aaf740d6f89\\image\\a3ca56b03dd8459eb745a6742686938c.jpg');
+INSERT INTO `folder` VALUES (80, '520', '2020-05-20 18:08:02.628', 1, '93585f57-56fc-f968-9f07-4aaf740d6f89\\image\\c205bd5a3d8d.jpg');
 
 -- ----------------------------
 -- Table structure for opensource

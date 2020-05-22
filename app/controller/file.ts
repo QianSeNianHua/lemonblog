@@ -8,13 +8,23 @@ import { rd } from '../../lib/routerDecorate/index';
 export default class File extends Controller {
 
   /**
-   * 获取格式化后的文章列表
+   * 获取格式化后的文章列表，只获取已发布的文章
    */
   @rd.post('/getFileList')
   public async getFileList () {
     const { ctx, service } = this;
 
     ctx.body = await service.fileDocument.getFormatFileList();
+  }
+
+  /**
+   * 获取格式化后的文章列表，获取已发布和未发布的所有文章
+   */
+  @rd.post('/getAllFileList', 'verifyToken', 'remoteLogin')
+  public async getAllFileList () {
+    const { ctx, service } = this;
+
+    ctx.body = await service.fileDocument.getFolderAllFileList();
   }
 
   /**
@@ -29,13 +39,23 @@ export default class File extends Controller {
   }
 
   /**
-   * 获取文章内容
+   * 获取文章内容，只获取已发布的文章，供普通用户编辑
    */
   @rd.post('/getArticle')
   public async getArticle () {
     const { ctx, service } = this;
 
     ctx.body = await service.fileDocument.getArticle();
+  }
+
+  /**
+   * 获取文章内容，可获取已发布或未发布的文章，供管理者编辑
+   */
+  @rd.post('/getAllArticle', 'verifyToken', 'remoteLogin')
+  public async getAllArticle () {
+    const { ctx, service } = this;
+
+    ctx.body = await service.fileDocument.getAllArticle();
   }
 
   /**
@@ -66,6 +86,16 @@ export default class File extends Controller {
     const { ctx, service } = this;
 
     ctx.body = await service.fileDocument.createAritcle();
+  }
+
+  /**
+   * 保存文章
+   */
+  @rd.post('/saveArticle', 'verifyToken', 'remoteLogin')
+  public async saveArticle () {
+    const { ctx, service } = this;
+
+    ctx.body = await service.fileDocument.saveArticle();
   }
 
   /**

@@ -2,7 +2,7 @@
  * @Author: xzt
  * @Date: 2019-12-16 00:02:58
  * @Last Modified by: xzt
- * @Last Modified time: 2020-05-14 11:05:42
+ * @Last Modified time: 2020-05-22 13:47:19
  */
 import { Service, Context } from 'egg';
 import sequelize from 'sequelize';
@@ -23,14 +23,15 @@ export default class FolderShell extends Service {
   /**
    * 获取分类列表
    * @param userUUID 用户唯一id
-   * @param count 每页显示的数量
-   * @param page 页标
    */
   async getFolderList () {
     // 检查参数
-    if (!this.data.userUUID || (!this.data.count && this.data.count !== 0) || (!this.data.page && this.data.page !== 0)) {
-      this.ctx.throw(CodeNum.API_ERROR, CodeMsg.API_ERROR);
-    }
+    this.ctx.validate({
+      userUUID: {
+        type: 'string',
+        required: true
+      }
+    });
 
     let res = await this.ctx.model.Folder.findAndCountAll({
       raw: true,
@@ -50,13 +51,11 @@ export default class FolderShell extends Service {
       }],
       order: [
         [ 'createTime', 'DESC' ]
-      ],
-      limit: this.data.count,
-      offset: (this.data.page - 1) * this.data.count
+      ]
     });
 
     res.rows.map(item => {
-      item.thumbnailURL = `http://${this.ctx.host}/${item.thumbnailURL}`;
+      item.thumbnailURL = `//${this.ctx.host}/${item.thumbnailURL}`;
     });
 
     return ResponseWrapper.mark(CodeNum.SUCCESS, CodeMsg.SUCCESS, res || { }).toString();
@@ -64,10 +63,12 @@ export default class FolderShell extends Service {
 
   /**
    * 新建分类文件夹，修改分类文件夹
+   * 新建时，需要folderName，file
+   * 修改时，需要folderId，folderName或folderId，folderName，file
    * @param userId 用户唯一id(token获取)
    * @param folderId 文件夹id(可选)。有值，表示修改。无值，表示新建
    * @param folderName 名称
-   * @param thumbnailURL 缩略图(可选)
+   * @param file 图片文件(可选)
    */
   async createFolder () {
     const userId = this.ctx.middleParams.userId;
@@ -163,43 +164,6 @@ export default class FolderShell extends Service {
       }
     } catch (error) {
     }
-  }
-
-  /**
-   * 修改分类文件夹
-   * @param {number} userId 用户唯一id(token获取)
-   * @param folderId 文件夹id
-   * @param folderName 名称
-   * @param thumbnailURL 缩略图(可选)
-   */
-  async modifyFolder () {
-    // 检查参数
-    this.ctx.validate({
-      folderId: {
-        type: 'number',
-        required: true
-      },
-      folderName: {
-        type: 'string',
-        required: true
-      },
-      thumbnailURL: {
-        type: 'string',
-        required: false
-      }
-    });
-
-    await this.ctx.model.Folder.update({
-      folderName: this.data.folderName,
-      thumbnailURL: this.data.thumbnailURL || null
-    }, {
-      where: {
-        userId: this.ctx.middleParams.userId,
-        folderId: this.data.folderId
-      }
-    });
-
-    return ResponseWrapper.mark(CodeNum.SUCCESS, CodeMsg.SUCCESS, { }).toString();
   }
 
   /**
